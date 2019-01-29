@@ -89,3 +89,20 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+
+//	New stuff for CS 202
+//	info system call takes in 1, 2, or 3
+//		1. return count of the processes in the system
+//		2. return count of the total number of system calls that a process has done so far
+//		3. return the number of memory pages the current process is using
+int
+sys_info(int param)
+{
+
+
+
+}
+
+

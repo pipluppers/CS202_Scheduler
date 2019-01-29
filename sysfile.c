@@ -443,3 +443,48 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+
+
+
+
+
+//	CS 202
+//	System call for info taking in an integer 1, 2, or 3
+//		1. returns count of the processes in the system
+//		2. returns count of the total number of system calls that a process has done so far
+//		3. returns the number of memory pages the current process is using
+int
+sys_info(int param)
+{
+	if (param == 1) {
+
+	}
+	else if (param == 2) {
+
+	}
+	else if (param == 3) {
+
+
+	}
+	else {
+		cout << "wtf\n";
+		exit();
+	}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
