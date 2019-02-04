@@ -448,7 +448,7 @@ sys_pipe(void)
 
 
 
-
+/*
 //	CS 202
 //	System call for info taking in an integer 1, 2, or 3
 //		1. returns count of the processes in the system
@@ -475,7 +475,7 @@ sys_info(int param)
 
 }
 
-
+*/
 
 
 
