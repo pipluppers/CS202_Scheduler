@@ -102,7 +102,7 @@ sys_info(int param)
 {
 
 
-
+	return 5;
 }
 
 

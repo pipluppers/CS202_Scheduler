@@ -56,13 +56,19 @@ mycpu(void)
 // while reading proc from the cpu structure
 struct proc*
 myproc(void) {
-  struct cpu *c;
-  struct proc *p;
-  pushcli();
-  c = mycpu();
-  p = c->proc;
-  popcli();
-  return p;
+  	struct cpu *c;
+  	struct proc *p;
+  
+	//	Disable interrupts
+	pushcli();
+  	
+	c = mycpu();
+  	p = c->proc;
+  	
+	//	Renable interrupts
+	popcli();
+  	
+	return p;
 }
 
 //PAGEBREAK: 32
@@ -532,3 +538,39 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
+
+
+
+
+// Take in one integer parameter with value 1, 2, or 3
+// 1: Return count of the processes in system
+// 2: Return count of the total number of system calls that a process has done so far
+// 3: Return number of memory pages the current process is using
+int
+info(int param)
+{
+
+	if (param == 1) {
+		
+	}
+	else if (param == 2) {
+	
+	}
+	else {
+
+	}
+	return param;
+
+}
+
+
+
+
+
+
+
+
+
+
