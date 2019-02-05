@@ -1,0 +1,23 @@
+#include "param.h"
+#include "types.h"
+#include "stat.h"
+#include "user.h"
+#include "fs.h"
+#include "fcntl.h"
+#include "syscall.h"
+#include "traps.h"
+#include "memlayout.h"
+
+int main() {
+	printf(1, "Hello Person\n");
+	
+	//	This is doing weird things right now and it's not because of the first parameter of printf
+	//	Trap 14 Page Fault
+	int x = info(2);
+	printf(1, x);
+	
+
+	printf(1,"Exiting\n");
+	exit();
+	return 0;
+}

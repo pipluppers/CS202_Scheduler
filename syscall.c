@@ -13,6 +13,14 @@
 // library system call function. The saved user %esp points
 // to a saved program counter, and then the first argument.
 
+
+
+
+int numSysCalls = 0;
+
+
+
+
 // Fetch the int at addr from the current process.
 int
 fetchint(uint addr, int *ip)
@@ -133,15 +141,20 @@ static int (*syscalls[])(void) = {
 void
 syscall(void)
 {
-  int num;
-  struct proc *curproc = myproc();
+	
+	++numSysCalls;
+	//cprintf("Current Number of system calls: %d\n", numSysCalls);
 
-  num = curproc->tf->eax;
-  if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
-    curproc->tf->eax = syscalls[num]();
-  } else {
-    cprintf("%d %s: unknown sys call %d\n",
-            curproc->pid, curproc->name, num);
-    curproc->tf->eax = -1;
-  }
+	int num;
+  	struct proc *curproc = myproc();
+
+  	num = curproc->tf->eax;
+  	if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+    		curproc->tf->eax = syscalls[num]();
+  	} 
+	else {
+    		cprintf("%d %s: unknown sys call %d\n",
+            	curproc->pid, curproc->name, num);
+    		curproc->tf->eax = -1;
+  	}
 }

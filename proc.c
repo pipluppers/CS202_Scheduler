@@ -7,6 +7,12 @@
 #include "proc.h"
 #include "spinlock.h"
 
+
+extern int numSysCalls;
+
+
+
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -551,16 +557,20 @@ procdump(void)
 int
 info(int param)
 {
+	cprintf("Calling the info function\n");
 
 	if (param == 1) {
-		
+		cprintf("Number of System Calls%d", numSysCalls);	
 	}
 	else if (param == 2) {
-	
+		cprintf("Number of System Calls: %d", numSysCalls);
 	}
 	else {
 
 	}
+
+	cprintf("End of the info function\n");
+
 	return param;
 
 }

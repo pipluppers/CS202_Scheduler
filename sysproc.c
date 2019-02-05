@@ -7,6 +7,8 @@
 #include "mmu.h"
 #include "proc.h"
 
+extern int numSysCalls;
+
 int
 sys_fork(void)
 {
@@ -100,9 +102,9 @@ sys_uptime(void)
 int
 sys_info(int param)
 {
-
-
-	return 5;
+	cprintf("Calling sys_info function in sysproc.c Num of System calls: %d\n", numSysCalls);
+	
+	return info(param);
 }
 
 
