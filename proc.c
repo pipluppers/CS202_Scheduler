@@ -260,7 +260,7 @@ fork(void)
 
 	//	Lab 1
 	//	Initializing the number of syscalls of the current process to 0
-	++curproc->numSysCalls;	
+//	++curproc->numSysCalls;	
 
 
   release(&ptable.lock);
@@ -413,6 +413,39 @@ scheduler(void)
 
   }
 }
+
+
+
+//	Lottery Scheduler
+void
+lottery_scheduler(void)
+{
+	struct proc *p;
+	struct cpu *c = mycpu();
+	c->proc = 0;
+
+	cprintf("Calling proc::lottery_scheduler\n");
+
+}
+
+
+
+
+//	Stride Scheduler
+void 
+stride_scheduler(void)
+{
+	struct proc *p;
+	struct cpu *c = mycpu();
+	c->proc = 0;
+
+	cprintf("Calling proc::stride_scheduler\n");
+
+}
+
+
+
+
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
