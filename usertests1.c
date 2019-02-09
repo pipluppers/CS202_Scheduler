@@ -9,12 +9,13 @@
 #include "memlayout.h"
 
 int main() {
-	printf(1, "Hello Person\n");
+	printf(1, "Starting usertests1\n");
 	
 	//	This is doing weird things right now and it's not because of the first parameter of printf
 	//	Trap 14 Page Fault
+	info(2);
 	int x = info(2);
-	printf(1, x);
+	printf(1, "%d\n", x);
 	
 
 	printf(1,"Exiting\n");

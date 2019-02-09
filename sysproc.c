@@ -100,11 +100,17 @@ sys_uptime(void)
 //		2. return count of the total number of system calls that a process has done so far
 //		3. return the number of memory pages the current process is using
 int
-sys_info(int param)
+sys_info(void)
 {
-	cprintf("Calling sys_info function in sysproc.c Num of System calls: %d\n", numSysCalls);
+	cprintf("Calling sys_info function in sysproc.c\n");
+	//cprintf("Value of param: %d\n", param);
+
+	int pid;
 	
-	return info(param);
+	if (argint(0, &pid) < 0)
+		return -1;
+	cprintf("Value of the parameter: %d\n", pid);
+	return info(pid);
 }
 
 

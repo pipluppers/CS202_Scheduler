@@ -88,6 +88,8 @@ allocproc(void)
   struct proc *p;
   char *sp;
 
+	cprintf("Calling proc::allocproc\n");
+
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
@@ -124,6 +126,14 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+
+
+	//	Lab 1
+	//	Initializing numSysCalls to 0
+	p->numSysCalls = 0;
+	p->numMemPg = 0;
+
+
   return p;
 }
 
@@ -134,6 +144,8 @@ userinit(void)
 {
   struct proc *p;
   extern char _binary_initcode_start[], _binary_initcode_size[];
+
+	cprintf("Calling proc::userinit\n");
 
   p = allocproc();
   
@@ -162,6 +174,15 @@ userinit(void)
 
   p->state = RUNNABLE;
 
+
+
+	//	Lab 1
+	//	Initializing numSysCalls to 0
+	p->numSysCalls = 0;
+	p->numMemPg = 0;
+
+
+
   release(&ptable.lock);
 }
 
@@ -172,6 +193,10 @@ growproc(int n)
 {
   uint sz;
   struct proc *curproc = myproc();
+
+
+	cprintf("Calling proc::growproc\n");
+
 
   sz = curproc->sz;
   if(n > 0){
@@ -195,6 +220,10 @@ fork(void)
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
+
+
+	cprintf("Calling proc::fork\n");
+
 
   // Allocate process.
   if((np = allocproc()) == 0){
@@ -228,6 +257,12 @@ fork(void)
 
   np->state = RUNNABLE;
 
+
+	//	Lab 1
+	//	Initializing the number of syscalls of the current process to 0
+	++curproc->numSysCalls;	
+
+
   release(&ptable.lock);
 
   return pid;
@@ -242,6 +277,10 @@ exit(void)
   struct proc *curproc = myproc();
   struct proc *p;
   int fd;
+
+
+	cprintf("Calling proc::exit\n");
+
 
   if(curproc == initproc)
     panic("init exiting");
@@ -288,6 +327,10 @@ wait(void)
   int havekids, pid;
   struct proc *curproc = myproc();
   
+
+	cprintf("Calling proc::wait\n");
+
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -311,8 +354,8 @@ wait(void)
         return pid;
       }
     }
-
     // No point waiting if we don't have any children.
+
     if(!havekids || curproc->killed){
       release(&ptable.lock);
       return -1;
@@ -337,6 +380,10 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
+
+
+	cprintf("Calling proc::scheduler\n");
+
   
   for(;;){
     // Enable interrupts on this processor.
@@ -397,6 +444,11 @@ sched(void)
 void
 yield(void)
 {
+
+
+	cprintf("Calling proc::yield\n");
+
+
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE;
   sched();
@@ -557,19 +609,21 @@ procdump(void)
 int
 info(int param)
 {
-	cprintf("Calling the info function\n");
+	cprintf("------------\nCalling the info function\n");
+	
+	struct proc *curproc = myproc();
 
 	if (param == 1) {
 		cprintf("Number of System Calls%d", numSysCalls);	
 	}
 	else if (param == 2) {
-		cprintf("Number of System Calls: %d", numSysCalls);
+		cprintf("Number of System Calls: %d\n", curproc->numSysCalls);
 	}
 	else {
-
+		cprintf("Number of Memory Pages: %d\n", curproc->numMemPg);
 	}
 
-	cprintf("End of the info function\n");
+	cprintf("End of the info function\n--------------\n");
 
 	return param;
 

@@ -111,7 +111,7 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
-extern int sys_info(int);
+extern int sys_info(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -151,6 +151,11 @@ syscall(void)
   	num = curproc->tf->eax;
   	if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     		curproc->tf->eax = syscalls[num]();
+
+		//	Lab 1
+		//	Increment the number of system calls performed by this process
+		++curproc->numSysCalls;
+
   	} 
 	else {
     		cprintf("%d %s: unknown sys call %d\n",
