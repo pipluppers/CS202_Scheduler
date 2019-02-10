@@ -8,11 +8,6 @@
 #include "spinlock.h"
 
 
-extern int numSysCalls;
-
-
-
-
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -417,6 +412,9 @@ scheduler(void)
 
 
 //	Lottery Scheduler
+//	Implement only the basic operation (no ticket transfers, compensation tickets, etc.)
+//	Freedom to decide how many tickets to assign to each process
+//	Can use a system call to assign tickets to processors
 void
 lottery_scheduler(void)
 {
@@ -619,7 +617,7 @@ procdump(void)
     if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
       state = states[p->state];
     else
-      state = "???";
+      state = "???  hehe what";	// The question marks were there already, I promise ...
     cprintf("%d %s %s", p->pid, state, p->name);
     if(p->state == SLEEPING){
       getcallerpcs((uint*)p->context->ebp+2, pc);
@@ -646,14 +644,15 @@ info(int param)
 	
 	struct proc *curproc = myproc();
 
-	if (param == 1) {
-		cprintf("Number of System Calls%d", numSysCalls);	
-	}
-	else if (param == 2) {
+	if (param == 1)
+		cprintf("Number of Processes in the system: %d", 50);	
+	else if (param == 2)
 		cprintf("Number of System Calls: %d\n", curproc->numSysCalls);
-	}
-	else {
+	else if (param == 3)
 		cprintf("Number of Memory Pages: %d\n", curproc->numMemPg);
+	else {
+		cprintf("Not a valid parameter for this function call\n");
+		exit();
 	}
 
 	cprintf("End of the info function\n--------------\n");

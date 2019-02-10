@@ -103,10 +103,10 @@ int
 sys_info(void)
 {
 	cprintf("Calling sys_info function in sysproc.c\n");
-	//cprintf("Value of param: %d\n", param);
 
 	int pid;
 	
+	//	Call argint to grab the argument value in the info call
 	if (argint(0, &pid) < 0)
 		return -1;
 	cprintf("Value of the parameter: %d\n", pid);

@@ -14,13 +14,6 @@
 // to a saved program counter, and then the first argument.
 
 
-
-
-int numSysCalls = 0;
-
-
-
-
 // Fetch the int at addr from the current process.
 int
 fetchint(uint addr, int *ip)
@@ -141,10 +134,6 @@ static int (*syscalls[])(void) = {
 void
 syscall(void)
 {
-	
-	++numSysCalls;
-	//cprintf("Current Number of system calls: %d\n", numSysCalls);
-
 	int num;
   	struct proc *curproc = myproc();
 
