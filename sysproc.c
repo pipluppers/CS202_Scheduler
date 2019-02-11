@@ -113,4 +113,17 @@ sys_info(void)
 	return info(pid);
 }
 
+/*
+int
+sys_initTicket(void)
+{
+	cprintf("Calling sys_initTicket function in sysproc.c\n");
+
+	initTicket();
+	return 0;
+}
+*/
+
+
+
 

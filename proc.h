@@ -1,3 +1,10 @@
+//	Lab 1
+//	Give the ticket the number of tickets and the owner of the ticket
+struct ticket {
+	int owner;	// assigned to the pid of the owner
+	//struct ticket(int pid): owner(pid);	// simply assign the owner to the owner's pid
+};
+
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -8,7 +15,17 @@ struct cpu {
   int ncli;                    // Depth of pushcli nesting.
   int intena;                  // Were interrupts enabled before pushcli?
   struct proc *proc;           // The process running on this cpu or null
+
+
+
+	//	Lab 1
+	//int sysNumTickets;
+	//struct ticket *sysTickets;		// List of all the tickets in the system
+
 };
+
+
+
 
 extern struct cpu cpus[NCPU];
 extern int ncpu;
@@ -34,6 +51,9 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+
+
+
 // Per-process state
 struct proc {
  	uint sz;                     	// Size of process memory (bytes)
@@ -52,7 +72,7 @@ struct proc {
 	
 	int numSysCalls;		// Keeps track of the number of system calls performed by this process
 	int numMemPg;			// Keeps track of the number of memory pages the current process is using
-	int numTickets;			// Keeps track of the number of tickets this process has
+	//struct ticket *tickets;		// List containing the process' tickets
 };
 
 // Process memory is laid out contiguously, low addresses first:

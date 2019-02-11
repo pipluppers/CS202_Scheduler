@@ -8,9 +8,6 @@
 #include "spinlock.h"
 
 int numProcesses = 0;
-int totalTickets = 0;
-struct ticket *ticketList;
-
 
 struct {
   struct spinlock lock;
@@ -125,34 +122,16 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
-
-	cprintf("Reached here\n");
-
-	//	Disable interrupts
-	pushcli();
-	//struct cpu *c = mycpu();
+	struct cpu *c = mycpu();
 
 	//	Lab 1
 	//	Initializing numSysCalls to 0
 	p->numSysCalls = 0;
 	p->numMemPg = 1;
+	p->tickets->num = 1;
+	c->sysTickets
 
 	++numProcesses;
-
-	struct ticket t;
-	t.owner = p->pid;
-	++totalTickets;
-
-	cprintf("Reach here2\n");
-
-	ticketList = &t;
-	cprintf("Total number of tickets: %d\n", totalTickets);
-
-	//	Renable interrupts
-	popcli();
-
-
-	cprintf("Leaving proc::allocproc()\n");
 
   return p;
 }
@@ -197,24 +176,17 @@ userinit(void)
 
 
 	//	Lab 1
-
-	//	Disable interrupts
-	pushcli();
+	//	Initializing numSysCalls to 0
 	p->numSysCalls = 0;
 	p->numMemPg = 1;
-	
+
 	++numProcesses;
-	
-	//struct cpu *c = mycpu();
-	struct ticket t;
-	t.owner = p->pid;
-	++totalTickets;
-	*(ticketList + totalTickets) = t;
 
-	cprintf("Total number of tickets in system: %d\n", totalTickets);
+	struct cpu *c = mycpu();
+	c->numSysTickets = 1;
+	c->(sysTickets) = ticket(p->pid); 
 
-	//	Renable interrupts
-	popcli();
+
 
   release(&ptable.lock);
 }
@@ -457,12 +429,8 @@ void
 lottery_scheduler(void)
 {
 	struct proc *p;
-	struct proc *winner;
 	struct cpu *c = mycpu();
 	c->proc = 0;
-	uint i = 0;
-	int chosenTicket;
-	int owner;
 
 	cprintf("Calling proc::lottery_scheduler\n");
 
@@ -474,37 +442,9 @@ lottery_scheduler(void)
 		//	Get the lock
 		acquire(&ptable.lock);
 		
-		Hello:
-		//	Get the random ticket and find the owner
-		chosenTicket = rand() % totalTickets;
-		owner = ticketList[chosenTicket];
-		
+		//	Loop through the process table
 		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-			if (p->pid == owner) {
-				//	Get another ticket if owner not runnable
-				if (owner->state != RUNNABLE) {
-					goto Hello;
-				}
-				winner = p;
-				
-				for (i = chosenTicket; i < totalTickets - 1; ++i) {
-					ticketList[i] = ticketList[i+1];
-				}
-				--totalTickets;
-				break;
-			}
-		}
-		c->proc = winner;
-		switchuvm(winner);
-		winner->state = RUNNING;
-		swtch(&(c->scheduler), p->context);	// Might have to change this scheduler
-		switchkvm();
-		c->proc = 0;
-
-		/*
-		for (i = 0; i < totalTickets; ++i){		
 			//	If the process can't run, skip it
-			
 			if (p->state != RUNNABLE) continue;
 
 			//	Look at the number of tickets. Grab a random one
@@ -512,8 +452,6 @@ lottery_scheduler(void)
 			//		Give each ticket a unique id??
 
 		}
-		*/
-
 
 		//	Release the lock
 		release(&ptable.lock);	
@@ -736,15 +674,16 @@ procdump(void)
 
 
 
-/*
+
 //	For use in lottery and stride schedulers
 //	Initializes the number of tickets to for a process
 void
 initTicket(void)
 {
 	struct proc *curproc = myproc();
+	myproc()->tickets.num = 5;
 }
-*/
+
 
 // Take in one integer parameter with value 1, 2, or 3
 // 1: Return count of the processes in system
