@@ -13,8 +13,10 @@ int main() {
 	
 	//	This is doing weird things right now and it's not because of the first parameter of printf
 	//	Trap 14 Page Fault
-	// info(2);
-	int x = info(1);
+
+	set_tickets(2);
+
+	int x = info(2);
 	printf(1, "x = %d\n", x);
 	
 

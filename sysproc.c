@@ -102,7 +102,7 @@ sys_uptime(void)
 int
 sys_info(void)
 {
-	cprintf("Calling sys_info function in sysproc.c\n");
+//	cprintf("Calling sys_info function in sysproc.c\n");
 
 	int pid;
 	
@@ -113,17 +113,17 @@ sys_info(void)
 	return info(pid);
 }
 
-/*
-int
-sys_initTicket(void)
-{
-	cprintf("Calling sys_initTicket function in sysproc.c\n");
 
-	initTicket();
+int
+sys_set_tickets(void)
+{
+	cprintf("Calling sys_set_tickets function in sysproc.c\n");
+
+	int pid;
+	
+	if (argint(0, &pid) < 0)
+		return -1;
+	set_tickets(pid);
 	return 0;
 }
-*/
-
-
-
 

@@ -16,7 +16,7 @@ struct cpu {
   int intena;                  // Were interrupts enabled before pushcli?
   struct proc *proc;           // The process running on this cpu or null
 
-
+	struct context *lottery_scheduler;
 
 	//	Lab 1
 	//int sysNumTickets;
