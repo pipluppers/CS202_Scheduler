@@ -290,7 +290,7 @@ fork(void)
 	//	Initializing the number of syscalls of the current process to 0
 //	++curproc->numSysCalls;	
 	curproc->numSysCalls = 0;
-	
+	++numProcesses;	
 
 	//	Add tickets here too
 
