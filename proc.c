@@ -137,10 +137,10 @@ found:
 	t.owner = p->pid;
 	++totalTickets;
 
-	cprintf("Reach here2\n");
+//	cprintf("Reach here2\n");
 
 	ticketList = &t;
-	cprintf("Total number of tickets: %d\n", totalTickets);
+//	cprintf("Total number of tickets: %d\n", totalTickets);
 
 
 	//cprintf("Leaving proc::allocproc()\n");
@@ -202,7 +202,7 @@ userinit(void)
 	++totalTickets;
 	*(ticketList + totalTickets) = t;
 
-	cprintf("Total number of tickets in system: %d\n", totalTickets);
+//	cprintf("Total number of tickets in system: %d\n", totalTickets);
 
 	//	Renable interrupts
 	popcli();
@@ -232,6 +232,10 @@ growproc(int n)
   }
   curproc->sz = sz;
   switchuvm(curproc);
+
+
+	++curproc->numMemPg;
+
   return 0;
 }
 
@@ -286,7 +290,7 @@ fork(void)
 	//	Initializing the number of syscalls of the current process to 0
 //	++curproc->numSysCalls;	
 	curproc->numSysCalls = 0;
-
+	
 
 	//	Add tickets here too
 
@@ -565,8 +569,8 @@ sched(void)
 	//	Lab 1
 	//	Calls the scheduler
 	//	Will change this to the lottery and stride schedulers later
-	//swtch(&p->context, mycpu()->scheduler);
- 	swtch(&p->context, mycpu()->lottery_scheduler); 
+	swtch(&p->context, mycpu()->scheduler);
+// 	swtch(&p->context, mycpu()->lottery_scheduler); 
 
 
 
@@ -760,7 +764,7 @@ set_tickets(int num)
 int
 info(int param)
 {
-	cprintf("------------\nCalling the info function\n");
+//	cprintf("------------\nCalling the info function\n");
 	
 	struct proc *curproc = myproc();
 
@@ -769,19 +773,21 @@ info(int param)
 		// struct proc* p = ptable.proc;
 		// for (; p < &ptable.proc[NPROC]; p++) ++count;
 		// cprintf("Number of Processes in the system: %d\n", count);
-
-		cprintf("Number of processes in system: %d\n", numProcesses);	
+		return numProcesses;
+//		cprintf("Number of processes in system: %d\n", numProcesses);	
 	}
 	else if (param == 2)
-		cprintf("Number of System Calls: %d\n", curproc->numSysCalls);
+		return curproc->numSysCalls;
+//		cprintf("Number of System Calls: %d\n", curproc->numSysCalls);
 	else if (param == 3)
-		cprintf("Number of Memory Pages: %d\n", curproc->numMemPg);
+		return curproc->numMemPg;
+//		cprintf("Number of Memory Pages: %d\n", curproc->numMemPg);
 	else {
-		cprintf("Not a valid parameter for this function call\n");
+//		cprintf("Not a valid parameter for this function call\n");
 		exit();
 	}
 
-	cprintf("End of the info function\n--------------\n");
+	//cprintf("End of the info function\n--------------\n");
 
 	return param;
 

@@ -109,7 +109,7 @@ sys_info(void)
 	//	Call argint to grab the argument value in the info call
 	if (argint(0, &pid) < 0)
 		return -1;
-	cprintf("Value of the parameter: %d\n", pid);
+	//cprintf("Value of the parameter: %d\n", pid);
 	return info(pid);
 }
 
