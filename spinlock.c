@@ -24,7 +24,17 @@ initlock(struct spinlock *lk, char *name)
 void
 acquire(struct spinlock *lk)
 {
+
+	//	This fails for some reason
+	//cprintf("Calling spinlock::acquire\n");
+
+
   pushcli(); // disable interrupts to avoid deadlock.
+
+	
+	//cprintf("Calling spinlock::acquire\n");
+
+
   if(holding(lk))
     panic("acquire");
 

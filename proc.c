@@ -9,7 +9,7 @@
 
 int numProcesses = 0;
 int totalTickets = 0;
-struct ticket *ticketList;
+int *ticketList = &totalTickets;
 
 
 struct {
@@ -78,7 +78,8 @@ myproc(void) {
 
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
-// If found, change state to EMBRYO and initialize
+// If found, change state to EMBRYOProject 2: xv6 Threads
+// and initialize
 // state required to run in the kernel.
 // Otherwise return 0.
 static struct proc*
@@ -87,7 +88,7 @@ allocproc(void)
   struct proc *p;
   char *sp;
 
-	//cprintf("Calling proc::allocproc\n");
+//	cprintf("Calling proc::allocproc\n");
 
   acquire(&ptable.lock);
 
@@ -133,17 +134,10 @@ found:
 
 	++numProcesses;
 
-	struct ticket t;
-	t.owner = p->pid;
-	++totalTickets;
-
-//	cprintf("Reach here2\n");
-
-	ticketList = &t;
 //	cprintf("Total number of tickets: %d\n", totalTickets);
 
 
-	//cprintf("Leaving proc::allocproc()\n");
+	cprintf("Leaving proc::allocproc()\n");
 
   return p;
 }
@@ -156,7 +150,7 @@ userinit(void)
   struct proc *p;
   extern char _binary_initcode_start[], _binary_initcode_size[];
 
-	//cprintf("Calling proc::userinit\n");
+	cprintf("Calling proc::userinit\n");
 
   p = allocproc();
   
@@ -186,28 +180,37 @@ userinit(void)
   p->state = RUNNABLE;
 
 
-
 	//	Lab 1
 
 	//	Disable interrupts
-	pushcli();
 	p->numSysCalls = 0;
 	p->numMemPg = 1;
 	
 	++numProcesses;
 	
-	//struct cpu *c = mycpu();
-	struct ticket t;
-	t.owner = p->pid;
+	
+	if (totalTickets == 0) {
+		cprintf("AAAAAHHHH\n");
+		*ticketList = p->pid;
+	}
+	else {
+		*(ticketList + totalTickets) = p->pid;
+	}
 	++totalTickets;
-	*(ticketList + totalTickets) = t;
 
-//	cprintf("Total number of tickets in system: %d\n", totalTickets);
 
-	//	Renable interrupts
-	popcli();
+	//	This line is causing problems
+	//
+//	*(ticketList + totalTickets) = p->pid;
 
-  release(&ptable.lock);
+	//
+
+
+	cprintf("About to release the lock\n");
+  	
+	release(&ptable.lock);
+
+	cprintf("Leaving userinit\n");
 }
 
 // Grow current process's memory by n bytes.
@@ -415,12 +418,14 @@ scheduler(void)
   c->proc = 0;
 
 
-//	cprintf("Calling proc::scheduler\n");
+	cprintf("Calling proc::scheduler\n");
 
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
+
+
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
@@ -465,13 +470,12 @@ void
 lottery_scheduler(void)
 {
 	struct proc *p;
-	struct proc *winner;
 	struct cpu *c = mycpu();
 	c->proc = 0;
 	int i = 0;
-	unsigned chosenTicket;
+	int chosenTicket;
 	int owner;
-	int runnable = 1;
+	int can_run = 0;
 
 	cprintf("Calling proc::lottery_scheduler\n");
 
@@ -482,8 +486,39 @@ lottery_scheduler(void)
 		
 		//	Get the lock
 		acquire(&ptable.lock);
-		runnable = 1;
+		
+		cprintf("Before the while loop\n");
+		can_run = 0;
+		while (can_run == 0) {
+		
+			cprintf("HI\n");	
+			chosenTicket = rand() % totalTickets;
+			cprintf("Getting random number for the ticket: %d\n",chosenTicket);
+	
+			owner = ticketList[chosenTicket];
+			
+			cprintf("Before the for loop\n");
+			for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+				if (p->pid == owner) {
+					if (p->state != RUNNABLE)
+						break;
+					cprintf("Found a winner\n");
+					for (i = chosenTicket; i < totalTickets - 1; ++i)
+						ticketList[i] = ticketList[i+1];
+					--totalTickets;
+					c->proc = p;
+					switchuvm(p);
+					p->state = RUNNING;
+					swtch(&(c->lottery_scheduler), p->context);
+					switchkvm();					
+					c->proc = 0;
+					can_run = 1;
+					break;
+				}
+			}
+		}
 
+/*
 		//	Get the random ticket and find the owner
 		chosenTicket = rand() % totalTickets;
 		owner = ticketList[chosenTicket].owner;
@@ -515,6 +550,10 @@ lottery_scheduler(void)
 			switchkvm();
 			c->proc = 0;
 		}
+
+
+*/
+
 
 		//	Release the lock
 		release(&ptable.lock);	
@@ -569,8 +608,8 @@ sched(void)
 	//	Lab 1
 	//	Calls the scheduler
 	//	Will change this to the lottery and stride schedulers later
-	swtch(&p->context, mycpu()->scheduler);
-// 	swtch(&p->context, mycpu()->lottery_scheduler); 
+//	swtch(&p->context, mycpu()->scheduler);
+ 	swtch(&p->context, mycpu()->lottery_scheduler); 
 
 
 
@@ -741,19 +780,30 @@ procdump(void)
 //	For use in lottery and stride schedulers
 //	Initializes the number of tickets to for a process
 void
-set_tickets(int num)
+set_tickets(int numTickets)
 {
 	struct proc *curproc = myproc();
+
+	acquire(&ptable.lock);
+
 	int i = 0;
 	struct ticket t;
 	t.owner = curproc->pid;
 	
 	//	Add the tickets belonging to the process to the ticket list
-	for (i = 0; i < num; ++i) {
-		ticketList[i + totalTickets] = t;
-		++totalTickets;
+	// 	This part messes everything up for some reason ----------------------------------------------------------------------
+	/*
+	for (i = 0; i < numTickets; ++i) {
+		*(ticketList + i) = t;
 	}
-	cprintf("Total number of tickets: %d\n", totalTickets);
+	*/
+	//
+
+	totalTickets = 30;
+	cprintf("Total number of tickets for this process: %d\n", totalTickets);
+
+	release(&ptable.lock);
+
 }
 
 
@@ -769,21 +819,13 @@ info(int param)
 	struct proc *curproc = myproc();
 
 	if (param == 1) {
-		// int count = 0;
-		// struct proc* p = ptable.proc;
-		// for (; p < &ptable.proc[NPROC]; p++) ++count;
-		// cprintf("Number of Processes in the system: %d\n", count);
 		return numProcesses;
-//		cprintf("Number of processes in system: %d\n", numProcesses);	
 	}
 	else if (param == 2)
 		return curproc->numSysCalls;
-//		cprintf("Number of System Calls: %d\n", curproc->numSysCalls);
 	else if (param == 3)
 		return curproc->numMemPg;
-//		cprintf("Number of Memory Pages: %d\n", curproc->numMemPg);
 	else {
-//		cprintf("Not a valid parameter for this function call\n");
 		exit();
 	}
 

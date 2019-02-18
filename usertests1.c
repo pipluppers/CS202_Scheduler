@@ -14,8 +14,6 @@ int main() {
 	//	This is doing weird things right now and it's not because of the first parameter of printf
 	//	Trap 14 Page Fault
 
-	//set_tickets(2);
-
 	int x = info(2);
 	printf(1, "Running processes in  the system = %d\n", info(1));
 	printf(1, "Number of System Calls for this process = %d\n", info(2));
