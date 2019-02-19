@@ -19,8 +19,11 @@ main(void)
   dup(0);  // stdout
   dup(0);  // stderr
 
+	printf(1, "--------------Beginning main in init.c---------------------\n");
+
+
   for(;;){
-    printf(1, "init: starting sh\n");
+    printf(1, "--------------------------init: starting sh------------------------------------\n");
     pid = fork();
     if(pid < 0){
       printf(1, "init: fork failed\n");

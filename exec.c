@@ -7,6 +7,9 @@
 #include "x86.h"
 #include "elf.h"
 
+extern int totalTickets;
+extern int* ticketList;
+
 int
 exec(char *path, char **argv)
 {
