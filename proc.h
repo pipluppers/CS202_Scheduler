@@ -74,7 +74,8 @@ struct proc {
 	
 	int numSysCalls;		// Keeps track of the number of system calls performed by this process
 	int numMemPg;			// Keeps track of the number of memory pages the current process is using
-	//struct ticket *tickets;		// List containing the process' tickets
+
+	int tickets;
 };
 
 // Process memory is laid out contiguously, low addresses first:
