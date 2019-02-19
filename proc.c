@@ -435,7 +435,7 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
 
-
+	cprintf("FACK------\n");
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
@@ -494,8 +494,6 @@ lottery_scheduler(void)
 	int chosenTicket;
 	int owner;
 	int can_run = 0;
-	//	Keep track of how many tickets this process has. If it becomes 0, give it a ticket to continue being able to run
-	int numOwnerTickets = 0;
 
 	cprintf("Calling proc::lottery_scheduler\n");
 
@@ -505,8 +503,8 @@ lottery_scheduler(void)
 	for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
 		*(ticketList + totalTickets) = p->pid;
 		++totalTickets;
-//		*(ticketList + totalTickets) = p->pid;
-//		++totalTickets;
+		*(ticketList + totalTickets) = p->pid;
+		++totalTickets;
 	}
 
 	
@@ -516,48 +514,49 @@ lottery_scheduler(void)
 		//	Enables interrupts on this processor
 		sti();
 		
-		cprintf("Geting lockPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP\n");
 		//	Get the lock
 		acquire(&ptable.lock);
 		
 		can_run = 0;
-		while (can_run == 0) {
 		
 		//	cprintf("Current Total Tickets: %d\n",totalTickets);
 		//	cprintf("Random Number: %d\n", rand());
-			chosenTicket = rand() % totalTickets;
+		chosenTicket = rand() % totalTickets;
 		//	cprintf("Getting random number for the ticket: %d\n",chosenTicket);
 	
-			owner = ticketList[chosenTicket];
+		owner = ticketList[chosenTicket];
 		//	cprintf("Process ID at that spot: %d\n", owner);
-			numOwnerTickets = 0;
 
 //			cprintf("Before the for loop\n");
-			for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-//				if (can_run == 0) {
-//				if (p->pid == owner && can_run == 0) {
-					if (p->state != RUNNABLE)
-						continue;
-					cprintf("Found a winner\n");
-
-
-					//	Main differences between this and regular scheduler
-					
-					for (i = chosenTicket; i < totalTickets - 1; ++i)
-						ticketList[i] = ticketList[i+1];
-					--totalTickets;
-					
-
-
-					c->proc = p;
-					switchuvm(p);
-					p->state = RUNNING;
-					swtch(&(c->lottery_scheduler), p->context);
-
-					switchkvm();					
-					c->proc = 0;
-					can_run = 1;
+		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+			if (p->state != RUNNABLE) {
+				continue;
 			}
+/*
+			if (p->pid != owner) {
+				continue;
+			}
+*/
+			//if (p->pid == owner) {
+
+				cprintf("Found a winner\n");
+
+				//	Main differences between this and regular scheduler
+				// -------------------------------------------------------------------
+				for (i = chosenTicket; i < totalTickets - 1; ++i)
+					ticketList[i] = ticketList[i+1];
+				--totalTickets;	
+				// -------------------------------------------------------------------
+				c->proc = p;
+				switchuvm(p);
+				p->state = RUNNING;
+				swtch(&(c->lottery_scheduler), p->context);
+
+				switchkvm();					
+				c->proc = 0;
+				can_run = 1;
+			//}
+		}
 /*
 			//	Give the process a ticket so it can still run if needed
 			if (numOwnerTickets == 0 && can_run == 1) {
@@ -567,11 +566,8 @@ lottery_scheduler(void)
 			}
 */
 
-			c->proc = 0;
-		}
 
 
-		cprintf("Releasing lock ------------------------------------\n");
 		//	Release the lock
 		release(&ptable.lock);	
 	}
@@ -609,7 +605,7 @@ sched(void)
 {
 
 
-	cprintf("Calling sched() in proc.c\n");
+//	cprintf("Calling sched() in proc.c\n");
 
 
   int intena;
@@ -645,7 +641,7 @@ yield(void)
 {
 
 
-	cprintf("Calling proc::yield\n");
+//	cprintf("Calling proc::yield\n");
 
 
   acquire(&ptable.lock);  //DOC: yieldlock
