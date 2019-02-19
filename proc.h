@@ -1,7 +1,8 @@
 //	Lab 1
 //	Give the ticket the number of tickets and the owner of the ticket
 struct ticket {
-	int owner;	// assigned to the pid of the owner
+	int owner;
+	struct proc *p;		// points at the owner of the ticket
 	//struct ticket(int pid): owner(pid);	// simply assign the owner to the owner's pid
 };
 

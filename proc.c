@@ -10,7 +10,8 @@
 int numProcesses = 0;
 int totalTickets = 0;
 int ticketList[200];
-
+//	List full of tickets, not processes
+struct ticket tickets[200];
 
 struct {
   struct spinlock lock;
@@ -141,8 +142,18 @@ found:
 		*(ticketList + totalTickets + i) = p->pid;
 	}
 	//*(ticketList + totalTickets) = p->pid;
+
+	//	Lab1
+	//	--------------------------------------------------------------------------------------
+	//	Attempt at the tickets struct 2/18/19
+	struct ticket t;
+	t.p = p;		// Make the ticket point to this process
+	for (i = 0; i < 5; ++i) {
+		*(tickets + totalTickets +i) = t;	// Add multiple copies of this ticket to the ticket list
+	}
+	//	--------------------------------------------------------------------------------------
+
 	
-	//++totalTickets;
 	totalTickets += 5;
 
 	cprintf("Added ticket %d\n", *(ticketList + totalTickets - 1));
@@ -493,7 +504,7 @@ lottery_scheduler(void)
 	int i = 0;
 	int chosenTicket;
 	int owner;
-	int can_run = 0;
+	struct ticket t2;
 
 	cprintf("Calling proc::lottery_scheduler\n");
 
@@ -507,7 +518,14 @@ lottery_scheduler(void)
 		++totalTickets;
 	}
 
-	
+	struct ticket t;
+	for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+		if (p->state != RUNNABLE) continue;
+		t.p = &p;
+		*(tickets + totalTickets) = t;
+		++totalTickets;
+	}
+	cprintf("Total number of tickets: %d\n", totalTickets);
 
 	// while(1)
 	for(;;) {
@@ -517,45 +535,45 @@ lottery_scheduler(void)
 		//	Get the lock
 		acquire(&ptable.lock);
 		
-		can_run = 0;
-		
+//		cprintf("Getting new ticket\n");
+
 		//	cprintf("Current Total Tickets: %d\n",totalTickets);
 		//	cprintf("Random Number: %d\n", rand());
 		chosenTicket = rand() % totalTickets;
 		//	cprintf("Getting random number for the ticket: %d\n",chosenTicket);
 	
-		owner = ticketList[chosenTicket];
-		//	cprintf("Process ID at that spot: %d\n", owner);
+//		owner = ticketList[chosenTicket];
+		
+		//	Grab the ticket at this location
+		t2 = tickets[chosenTicket];
 
-//			cprintf("Before the for loop\n");
 		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
 			if (p->state != RUNNABLE) {
 				continue;
 			}
+
 /*
-			if (p->pid != owner) {
+			if (p != t2.p) {
 				continue;
 			}
 */
-			//if (p->pid == owner) {
+//			cprintf("Found a winner\n");
 
-				cprintf("Found a winner\n");
+			//	Main differences between this and regular scheduler
+			// -------------------------------------------------------------------
+			for (i = chosenTicket; i < totalTickets - 1; ++i) {
+				//ticketList[i] = ticketList[i+1];
+				tickets[i] = tickets[i+1];
+			}
+			--totalTickets;	
+			// -------------------------------------------------------------------
+			c->proc = p;
+			switchuvm(p);
+			p->state = RUNNING;
+			swtch(&(c->lottery_scheduler), p->context);
 
-				//	Main differences between this and regular scheduler
-				// -------------------------------------------------------------------
-				for (i = chosenTicket; i < totalTickets - 1; ++i)
-					ticketList[i] = ticketList[i+1];
-				--totalTickets;	
-				// -------------------------------------------------------------------
-				c->proc = p;
-				switchuvm(p);
-				p->state = RUNNING;
-				swtch(&(c->lottery_scheduler), p->context);
-
-				switchkvm();					
-				c->proc = 0;
-				can_run = 1;
-			//}
+			switchkvm();					
+			c->proc = 0;
 		}
 /*
 			//	Give the process a ticket so it can still run if needed
