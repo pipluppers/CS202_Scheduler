@@ -22,6 +22,9 @@ exec(char *path, char **argv)
   pde_t *pgdir, *oldpgdir;
   struct proc *curproc = myproc();
 
+	cprintf("HELLO\n");
+
+
   begin_op();
 
   if((ip = namei(path)) == 0){
@@ -40,6 +43,11 @@ exec(char *path, char **argv)
 
   if((pgdir = setupkvm()) == 0)
     goto bad;
+
+
+	//cprintf("HELLOOOOOOO\n");
+
+
 
   // Load program into memory.
   sz = 0;

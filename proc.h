@@ -17,6 +17,7 @@ struct cpu {
   struct proc *proc;           // The process running on this cpu or null
 
 	struct context *lottery_scheduler;
+//	struct context *stride_scheduler;
 
 	//	Lab 1
 	//int sysNumTickets;
