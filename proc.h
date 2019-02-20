@@ -18,7 +18,7 @@ struct cpu {
   struct proc *proc;           // The process running on this cpu or null
 
 	struct context *lottery_scheduler;
-//	struct context *stride_scheduler;
+	struct context *stride_scheduler;
 
 	//	Lab 1
 	//int sysNumTickets;
@@ -75,7 +75,9 @@ struct proc {
 	int numSysCalls;		// Keeps track of the number of system calls performed by this process
 	int numMemPg;			// Keeps track of the number of memory pages the current process is using
 
-	int tickets;
+	int tickets;			// Keeps track of the number of tickets the process has
+	int original_stride;
+	int stride;
 };
 
 // Process memory is laid out contiguously, low addresses first:

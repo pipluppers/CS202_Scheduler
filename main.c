@@ -60,8 +60,8 @@ mpmain(void)
 
 	//	Lab 1 Main Calling scheduler
 //	scheduler();     // start running processes
-	lottery_scheduler();
-
+//	lottery_scheduler();
+	stride_scheduler();
 
 
 

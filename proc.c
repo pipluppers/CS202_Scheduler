@@ -139,12 +139,11 @@ found:
 	//	--------------------------------------------------------------------------------------
 	//	Attempt at the tickets struct 2/18/19
 
-
-
-	p->tickets = 10;
-
-
-	
+	acquire(&ptable.lock);
+	p->tickets = 2;
+	p->original_stride = 10000/(p->tickets);
+	p->stride = p->original_stride;
+	release(&ptable.lock);
 
 
 
@@ -562,7 +561,6 @@ lottery_scheduler(void)
 
 
 
-
 //	Stride Scheduler
 void 
 stride_scheduler(void)
@@ -570,9 +568,46 @@ stride_scheduler(void)
 	struct proc *p;
 	struct cpu *c = mycpu();
 	c->proc = 0;
+	float min_stride;
+	struct proc *min_proc;
 
-//	cprintf("Calling proc::stride_scheduler\n");
+	cprintf("Calling proc::stride_scheduler\n");
 
+	//	Run 5ever
+	for (;;) {
+
+		// Enables interrupts on this processor
+		sti();
+
+		// Get the lock
+		acquire(&ptable.lock);
+
+		min_stride = 1000000000;
+		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+			if (p->state != RUNNABLE) continue;
+
+			if (p->stride < min_stride) {
+			
+				min_stride = p->stride;
+
+				min_proc = p;
+			}
+		}
+		min_proc->stride += min_proc->original_stride;		
+		//cprintf("Process %d's stride: %d\n", min_proc->pid, min_proc->stride);
+		c->proc = min_proc;
+		switchuvm(min_proc);
+		min_proc->state = RUNNING;
+		
+		swtch(&(c->stride_scheduler), min_proc->context);
+		switchkvm();
+
+		//	Process is done running now
+		//	It should have changed its p->state before coming back
+		c->proc = 0;
+		release(&ptable.lock);
+	}
+	cprintf("This should never print. In proc::stride_scheduler\n");
 }
 
 
@@ -614,8 +649,8 @@ sched(void)
 	//	Also change main.c
 	//	Will change this to the lottery and stride schedulers later
 //	swtch(&p->context, mycpu()->scheduler);
-	swtch(&p->context, mycpu()->lottery_scheduler); 
-
+//	swtch(&p->context, mycpu()->lottery_scheduler); 
+	swtch(&p->context, mycpu()->stride_scheduler);
 
 
 	mycpu()->intena = intena;

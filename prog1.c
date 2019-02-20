@@ -7,9 +7,9 @@
 #include "syscall.h"
 #include "traps.h"
 #include "memlayout.h"
+#include "spinlock.h"
 
 int main() {
-	
 	set_tickets(30);
 
 	int i,k;
@@ -21,7 +21,6 @@ int main() {
 
 	
 	printf(1, "Number of tickets for prog1: %d\n", print_tickets());
-
 	exit();
 	return 0;
 }
