@@ -649,8 +649,8 @@ sched(void)
 	//	Also change main.c
 	//	Will change this to the lottery and stride schedulers later
 //	swtch(&p->context, mycpu()->scheduler);
-//	swtch(&p->context, mycpu()->lottery_scheduler); 
-	swtch(&p->context, mycpu()->stride_scheduler);
+	swtch(&p->context, mycpu()->lottery_scheduler); 
+//	swtch(&p->context, mycpu()->stride_scheduler);
 
 
 	mycpu()->intena = intena;
