@@ -124,6 +124,7 @@ void            wakeup(void*);
 void            yield(void);
 int		info(int);
 void		set_tickets(int);
+int		print_tickets(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

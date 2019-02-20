@@ -22,7 +22,6 @@ exec(char *path, char **argv)
   pde_t *pgdir, *oldpgdir;
   struct proc *curproc = myproc();
 
-	cprintf("HELLO\n");
 
 
   begin_op();
@@ -45,7 +44,6 @@ exec(char *path, char **argv)
     goto bad;
 
 
-	//cprintf("HELLOOOOOOO\n");
 
 
 

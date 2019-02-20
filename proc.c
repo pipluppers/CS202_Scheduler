@@ -89,7 +89,7 @@ allocproc(void)
   struct proc *p;
   char *sp;
 
-	cprintf("Calling proc::allocproc\n");
+//	cprintf("Calling proc::allocproc\n");
 
   acquire(&ptable.lock);
 
@@ -135,37 +135,20 @@ found:
 
 	++numProcesses;
 
-//	cprintf("Total number of tickets: %d\n", totalTickets);
-//	Give Each process 10 tickets
-	int i = 0;
-	for (i = 0; i < 5; ++i) {
-		*(ticketList + totalTickets + i) = p->pid;
-	}
-	//*(ticketList + totalTickets) = p->pid;
-
 	//	Lab1
 	//	--------------------------------------------------------------------------------------
 	//	Attempt at the tickets struct 2/18/19
-	struct ticket t;
-	t.p = p;		// Make the ticket point to this process
-	for (i = 0; i < 5; ++i) {
-		*(tickets + totalTickets +i) = t;	// Add multiple copies of this ticket to the ticket list
-	}
-	//	--------------------------------------------------------------------------------------
 
 
 
-	p->tickets = 20;
+	p->tickets = 10;
 
 
 	
-	totalTickets += 5;
-
-	cprintf("Added ticket %d\n", *(ticketList + totalTickets - 1));
-	cprintf("Total Tickets: %d\n", totalTickets);
 
 
-	cprintf("Leaving proc::allocproc()\n");
+
+//	cprintf("Leaving proc::allocproc()\n");
 
   return p;
 }
@@ -178,7 +161,7 @@ userinit(void)
   struct proc *p;
   extern char _binary_initcode_start[], _binary_initcode_size[];
 
-	cprintf("Calling proc::userinit\n");
+//	cprintf("Calling proc::userinit\n");
 
   p = allocproc();
   
@@ -217,22 +200,12 @@ userinit(void)
 	++numProcesses;
 	
 	
-	if (totalTickets == 0) {
-		cprintf("AAAAAHHHH\n");
-		*ticketList = p->pid;
-	}
-	else {
-		*(ticketList + totalTickets) = p->pid;
-	}
-	++totalTickets;
-	cprintf("%d\n",sizeof(ticketList));
-
 */
-	cprintf("About to release the lock\n");
+//	cprintf("About to release the lock\n");
   	
 	release(&ptable.lock);
 
-	cprintf("Leaving userinit\n");
+//	cprintf("Leaving userinit\n");
 }
 
 // Grow current process's memory by n bytes.
@@ -244,7 +217,7 @@ growproc(int n)
   struct proc *curproc = myproc();
 
 
-	cprintf("Calling proc::growproc\n");
+//	cprintf("Calling proc::growproc\n");
 
 
   sz = curproc->sz;
@@ -275,7 +248,7 @@ fork(void)
   struct proc *curproc = myproc();
 
 
-	cprintf("Calling proc::fork\n");
+//	cprintf("Calling proc::fork\n");
 
 
   // Allocate process.
@@ -444,7 +417,7 @@ scheduler(void)
   c->proc = 0;
 
 
-	cprintf("Calling proc::scheduler\n");
+//	cprintf("Calling proc::scheduler\n");
 
   
   for(;;){
@@ -459,7 +432,7 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
 
-	cprintf("Found process to run----------------------aaaaaaa\n");
+//	cprintf("Found process to run----------------------aaaaaaa\n");
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -509,13 +482,12 @@ lottery_scheduler(void)
 	int i = 0;
 	int chosenTicket;
 	int owner;
-	struct ticket t2;
 
-	cprintf("Calling proc::lottery_scheduler\n");
+//	cprintf("Calling proc::lottery_scheduler\n");
 
 	int tot_tickets = 0;
 	int counter = 0;
-
+	int used_tickets = 0;
 
 	// while(1)
 	for(;;) {
@@ -532,10 +504,15 @@ lottery_scheduler(void)
 			}
 			tot_tickets += p->tickets;
 		}
+
+		//cprintf("Number of total tickets: %d\n", tot_tickets);
+		//exit();
+		
 		if (tot_tickets == 0) {
 			release(&ptable.lock);
 			continue;
 		}
+//		tot_tickets -= used_tickets;
 		chosenTicket = rand() % tot_tickets;
 
 		counter = 0;
@@ -543,6 +520,7 @@ lottery_scheduler(void)
 			if (p->state != RUNNABLE) continue;
 			++counter;
 			if (counter != chosenTicket) continue;
+			++used_tickets;
 			c->proc = p;
 			switchuvm(p);
 			p->state = RUNNING;
@@ -593,7 +571,7 @@ stride_scheduler(void)
 	struct cpu *c = mycpu();
 	c->proc = 0;
 
-	cprintf("Calling proc::stride_scheduler\n");
+//	cprintf("Calling proc::stride_scheduler\n");
 
 }
 
@@ -813,21 +791,7 @@ set_tickets(int numTickets)
 
 	acquire(&ptable.lock);
 
-	int i = 0;
-	struct ticket t;
-	t.owner = curproc->pid;
-	
-	//	Add the tickets belonging to the process to the ticket list
-	// 	This part messes everything up for some reason ----------------------------------------------------------------------
-	/*
-	for (i = 0; i < numTickets; ++i) {
-		*(ticketList + i) = t;
-	}
-	*/
-	//
-
-	totalTickets = 30;
-	cprintf("Total number of tickets for this process: %d\n", totalTickets);
+	curproc->tickets = numTickets;
 
 	release(&ptable.lock);
 
@@ -864,8 +828,18 @@ info(int param)
 
 
 
+int
+print_tickets() {
 
-
+	acquire(&ptable.lock);
+	int t = 0;
+	struct proc *p;
+	for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+		t += p->tickets;
+	}
+	release(&ptable.lock);
+	return t;
+}
 
 
 

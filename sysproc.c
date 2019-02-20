@@ -117,7 +117,7 @@ sys_info(void)
 int
 sys_set_tickets(void)
 {
-	cprintf("Calling sys_set_tickets function in sysproc.c\n");
+//	cprintf("Calling sys_set_tickets function in sysproc.c\n");
 
 	int pid;
 	
@@ -126,4 +126,16 @@ sys_set_tickets(void)
 	set_tickets(pid);
 	return 0;
 }
+
+int
+sys_print_tickets(void)
+{
+
+//	cprintf("Calling sys_print_tickets in sysproc.c\n");
+	
+	return print_tickets();
+}
+
+
+
 
