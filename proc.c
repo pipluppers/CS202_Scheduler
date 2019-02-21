@@ -248,9 +248,7 @@ fork(void)
   struct proc *np;
   struct proc *curproc = myproc();
 
-
 //	cprintf("Calling proc::fork\n");
-
 
   // Allocate process.
   if((np = allocproc()) == 0){
@@ -284,25 +282,29 @@ fork(void)
 
   np->state = RUNNABLE;
 
-
-	//	Lab 1
-	//	Initializing the number of syscalls of the current process to 0
-	//	Technically allocproc should have created the process
-
-/*
-//	++curproc->numSysCalls;	
-
-	curproc->numSysCalls = 0;
-	++numProcesses;	
-
-	//	Add tickets here too
-
-*/
-
   release(&ptable.lock);
 
   return pid;
 }
+
+
+//int clone(int size, void *stack) {
+//	Use the parent's address space
+//	Don't duplicate the file descriptors of the parents. Should use the same file descriptor
+//	Run on the child user's stack, NOT the parent's stack
+//
+//	Return the pid of the child to the parent (or 0 to a newly created child thread)
+int clone(int size) {
+	int i, pid;
+	struct proc *np;
+	struct proc *curproc = myproc();	// Current process
+
+	// Don't create a new process??
+
+
+	return 1;
+}
+
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
@@ -419,21 +421,16 @@ scheduler(void)
 
 
 //	cprintf("Calling proc::scheduler\n");
-
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
-
-//	cprintf("FACK------\n");
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
-
-//	cprintf("Found process to run----------------------aaaaaaa\n");
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -455,12 +452,6 @@ scheduler(void)
 }
 
 
-/*
-unsigned rand() {
-	bit = ((ab >> 0) ^ (ab >> 2) ^ (ab >> 3) ^ (ab >> 5) ) & 1;
-	return ab = (ab >> 1) | (bit >> 15);
-}
-*/
 #define RAND_MAX_32 ((1U << 31) - 1)
 int rseed = 0;
 int rand() {
@@ -480,17 +471,13 @@ lottery_scheduler(void)
 	struct proc *p;
 	struct cpu *c = mycpu();
 	c->proc = 0;
-	int i = 0;
 	int chosenTicket;
-	int owner;
 
 //	cprintf("Calling proc::lottery_scheduler\n");
 
 	int tot_tickets = 0;
 	int counter = 0;
-	int used_tickets = 0;
 
-	// while(1)
 	for(;;) {
 		//	Enables interrupts on this processor
 		sti();
@@ -498,6 +485,7 @@ lottery_scheduler(void)
 		//	Get the lock
 		acquire(&ptable.lock);
 		
+		//	Find the total number of tickets in the system
 		tot_tickets = 0;
 		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
 			if (p->state != RUNNABLE) {
@@ -506,14 +494,7 @@ lottery_scheduler(void)
 			tot_tickets += p->tickets;
 		}
 
-		//cprintf("Number of total tickets: %d\n", tot_tickets);
-		//exit();
-		
-		if (tot_tickets == 0) {
-			release(&ptable.lock);
-			continue;
-		}
-//		tot_tickets -= used_tickets;
+		//	Grab a random ticket from the ticket list		
 		chosenTicket = rand() % tot_tickets;
 
 		counter = 0;
@@ -521,7 +502,8 @@ lottery_scheduler(void)
 			if (p->state != RUNNABLE) continue;
 			++counter;
 			if (counter != chosenTicket) continue;
-			++used_tickets;
+			
+			//	Schedule this process
 			c->proc = p;
 			switchuvm(p);
 			p->state = RUNNING;
@@ -533,31 +515,6 @@ lottery_scheduler(void)
 		}
 		release(&ptable.lock);
 	}
-/*
-		for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-			if (p->state != RUNNABLE) {
-				continue;
-			}
-
-//			cprintf("Found a winner\n");
-
-			//	Main differences between this and regular scheduler
-			// -------------------------------------------------------------------
-			for (i = chosenTicket; i < totalTickets - 1; ++i) {
-				//ticketList[i] = ticketList[i+1];
-				tickets[i] = tickets[i+1];
-			}
-			--totalTickets;	
-			// -------------------------------------------------------------------
-			c->proc = p;
-			switchuvm(p);
-			p->state = RUNNING;
-			swtch(&(c->lottery_scheduler), p->context);
-
-			switchkvm();					
-			c->proc = 0;
-		}
-*/
 	cprintf("This should never print. In proc::lottery_schduler\n");
 }
 
@@ -651,9 +608,9 @@ sched(void)
 	//	Calls the scheduler
 	//	Also change main.c
 	//	Will change this to the lottery and stride schedulers later
-//	swtch(&p->context, mycpu()->scheduler);
+	swtch(&p->context, mycpu()->scheduler);
 //	swtch(&p->context, mycpu()->lottery_scheduler); 
-	swtch(&p->context, mycpu()->stride_scheduler);
+//	swtch(&p->context, mycpu()->stride_scheduler);
 
 
 	mycpu()->intena = intena;
@@ -887,14 +844,6 @@ stride_runs()
 
 	struct proc *p = myproc();
 	return p->numRan;
-}
-
-
-int clone(void *stack, int size) {
-
-
-
-	return 1;
 }
 
 

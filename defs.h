@@ -130,7 +130,6 @@ int		stride_runs(void);
 int		clone(int);
 
 
-
 // swtch.S
 void            swtch(struct context**, struct context*);
 

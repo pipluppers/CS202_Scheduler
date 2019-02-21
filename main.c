@@ -59,9 +59,9 @@ mpmain(void)
 
 
 	//	Lab 1 Main Calling scheduler
-//	scheduler();     // start running processes
+	scheduler();     // start running processes
 //	lottery_scheduler();
-	stride_scheduler();
+//	stride_scheduler();
 
 
 
