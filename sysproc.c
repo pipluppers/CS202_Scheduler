@@ -137,5 +137,24 @@ sys_print_tickets(void)
 }
 
 
+int 
+sys_stride_runs(void)
+{
+	return stride_runs();
+}
+
+int
+sys_clone(void)
+{
+
+	int pid;
+	if (argint(0, &pid) < 0)
+		return -1;
+
+	// huh
+	return clone(pid);
+
+
+}
 
 

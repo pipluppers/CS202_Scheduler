@@ -23,3 +23,5 @@
 #define SYS_info   22
 #define SYS_set_tickets   23
 #define SYS_print_tickets 24
+#define SYS_stride_runs 25
+#define SYS_clone 26

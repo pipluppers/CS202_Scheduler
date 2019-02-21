@@ -78,6 +78,7 @@ struct proc {
 	int tickets;			// Keeps track of the number of tickets the process has
 	int original_stride;
 	int stride;
+	int numRan;
 };
 
 // Process memory is laid out contiguously, low addresses first:

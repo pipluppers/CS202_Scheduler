@@ -38,6 +38,8 @@ int main() {
 	//printf(1, "Runtime of prog1: %d\n", t1-t0);	
 
 	printf(1, "Number of tickets for prog1: %d\n", print_tickets());
+
+	printf(1, "Number of strides taken for prog1: %d\n", stride_runs());
 	exit();
 	return 0;
 }

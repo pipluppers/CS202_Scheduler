@@ -125,6 +125,11 @@ void            yield(void);
 int		info(int);
 void		set_tickets(int);
 int		print_tickets(void);
+int		stride_runs(void);
+//int		clone(void, int);
+int		clone(int);
+
+
 
 // swtch.S
 void            swtch(struct context**, struct context*);

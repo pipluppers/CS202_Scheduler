@@ -107,7 +107,8 @@ extern int sys_uptime(void);
 extern int sys_info(void);
 extern int sys_set_tickets(void);
 extern int sys_print_tickets(void);
-
+extern int sys_stride_runs(void);
+extern int sys_clone(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    		sys_fork,
@@ -134,6 +135,8 @@ static int (*syscalls[])(void) = {
 [SYS_info]    		sys_info,
 [SYS_set_tickets]	sys_set_tickets,
 [SYS_print_tickets]	sys_print_tickets,
+[SYS_stride_runs]	sys_stride_runs,
+[SYS_clone]		sys_clone,
 };
 
 void

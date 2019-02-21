@@ -143,6 +143,7 @@ found:
 	p->tickets = 2;
 	p->original_stride = 10000/(p->tickets);
 	p->stride = p->original_stride;
+	p->numRan = 0;
 	release(&ptable.lock);
 
 
@@ -230,6 +231,7 @@ growproc(int n)
   curproc->sz = sz;
   switchuvm(curproc);
 
+//	Take size and divide by PGSIZE
 
 	++curproc->numMemPg;
 
@@ -593,7 +595,8 @@ stride_scheduler(void)
 				min_proc = p;
 			}
 		}
-		min_proc->stride += min_proc->original_stride;		
+		min_proc->stride += min_proc->original_stride;	
+		++min_proc->numRan;	
 		//cprintf("Process %d's stride: %d\n", min_proc->pid, min_proc->stride);
 		c->proc = min_proc;
 		switchuvm(min_proc);
@@ -649,8 +652,8 @@ sched(void)
 	//	Also change main.c
 	//	Will change this to the lottery and stride schedulers later
 //	swtch(&p->context, mycpu()->scheduler);
-	swtch(&p->context, mycpu()->lottery_scheduler); 
-//	swtch(&p->context, mycpu()->stride_scheduler);
+//	swtch(&p->context, mycpu()->lottery_scheduler); 
+	swtch(&p->context, mycpu()->stride_scheduler);
 
 
 	mycpu()->intena = intena;
@@ -878,5 +881,20 @@ print_tickets() {
 
 
 
+int
+stride_runs()
+{
+
+	struct proc *p = myproc();
+	return p->numRan;
+}
+
+
+int clone(void *stack, int size) {
+
+
+
+	return 1;
+}
 
 

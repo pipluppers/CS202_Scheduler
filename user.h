@@ -26,6 +26,11 @@ int uptime(void);
 int info(int);
 int set_tickets(int);
 int print_tickets(void);
+int stride_runs(void);
+//int clone(void, int);
+//	Said void must be the only parameter
+int clone(int);
+
 
 // ulib.c
 int stat(const char*, struct stat*);

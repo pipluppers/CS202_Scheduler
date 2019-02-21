@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
 	asm("nop");
 	
 	printf(1, "Number of tickets for prog2: %d\n", print_tickets());
+
+	printf(1, "Number of strides taken for prog2: %d\n", stride_runs());
 	exit();
 	return 0;
 }
