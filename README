@@ -1,3 +1,44 @@
+# xv6 Original ReadMe Below
+
+# Scheduling
+
+Thanks to Professor Nael Abu-Ghazaleh for overseeing this project!
+
+xv6 is an operating system provided by MIT and is great for practicing implementations of important operating system components.
+In this specific project, three separate system calls were added.
+
+## Info
+
+Info is a system call that takes in one integer as input. This integer is allowed to only be three values (1, 2, or 3):
+
+- If the input is 1, then the system call will print the number of processes in the system. 
+
+- If the input is 2, then it will print the number of system calls that the current process has done so far. 
+
+- If the input is 3, then it will print the number of memory pages that
+the process is currently using.
+
+## Lottery Scheduling
+
+Lottery Scheduling is a type of scheduling algorithm that utilizes a ticket system to determine which process should run next. This type
+of scheduling is probabilistically fair due to the fact that the more tickets a process has, the higher the chance that it will be
+chosen to run. It also prevents starvation in that a process always has a non-zero chance of being run.
+
+In this implementation, upon being allocated, a process is initialized with a set number of tickets (2 in case). Another system call 
+known as set_tickets is also implemented in order to allow a process to have a customizable amount of tickets. When choosing the next 
+process to run, the algorithm grabs a random ticket from the ticket pool (which contains all of the tickets of single process). 
+Then it loops through the available processes in order to find the winning ticket holder and schedules that process
+to run next.
+
+## Stride Scheduling
+
+Stride scheduling is another type of scheduling algorithm that is very similar to lottery scheduling. It also uses the ticket system, 
+but is more deterministic instead of probabilistic. Based on the number of tickets that process currently has, the algorithm assigns it 
+a stride value, which is inversely proportional to the number of tickets held. The process with the lowest stride will be chosen to run,
+and after it has run, its stride will be increased according to its ticket number. This prevents starvation as well and allows progress.
+
+# Original ReadMe ---------------------------
+
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern x86-based multiprocessor using ANSI C.
