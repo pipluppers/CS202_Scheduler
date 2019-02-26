@@ -1,11 +1,8 @@
-# xv6 Original ReadMe Below
-
-# Scheduling
+# xv6 Scheduling
 
 Thanks to Professor Nael Abu-Ghazaleh for overseeing this project!
 
-xv6 is an operating system provided by MIT and is great for practicing implementations of important operating system components.
-In this specific project, three separate system calls were added.
+xv6 is an operating system provided by MIT and is great for practicing implementations of important operating system components. The original ReadMe is listed below. In this specific project, three separate system calls were added.
 
 ## Info
 
