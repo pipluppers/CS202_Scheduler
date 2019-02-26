@@ -77,6 +77,65 @@ myproc(void) {
 	return p;
 }
 
+
+
+static struct proc*
+allocthread(void)
+{
+	struct proc *p;
+	char *sp;
+
+	// cprintf("Calling allocthread in proc.c\n");
+	
+	acquire(&ptable.lock);
+
+	//	Look for an unused process
+	for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+		if (p->state == UNUSED) goto found;
+	}
+
+	//	If no unused process, release lock and stop
+	release(&ptable.lock);
+	return 0;
+
+	found:
+		p->state = EMBRYO;
+		struct proc *curproc = myproc();	// Used to get the parent address space
+		p->pid = nextpid++;
+		release(&ptable.lock);
+
+		// Should not allocate new kernel stack
+		// Use the same one as the parent
+		p->kstack = curproc->kstack;
+		sp = p->kstack + KSTACKSIZE;
+
+		// Leave room for trap frame
+		sp -= sizeof *p->tf;
+		p->tf = (struct trapframe *) sp;
+
+		// Set up new context to start executing at forkret
+		// which returns to trapret
+		sp -= 4;
+		*(uint *)sp = (uint) trapret;
+
+		sp -= sizeof *p->context;
+		p->context = (struct context*) sp;
+		memset(p->context,0,sizeof *p->context);
+		p->context->eip = (uint) forkret;
+
+		// Lab 1 Additions
+		p->numSysCalls = 0;
+		p->numMemPg = 1;
+		++numProcesses;	// necessary? Is a thread a process?
+		p->tickets = 2;
+		p->original_stride = 10000/p->tickets;
+		p->stride = p->original_stride;
+		p->numRan = 0;
+
+		return p;
+}
+		
+
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
 // If found, change state to EMBRYOProject 2: xv6 Threads
@@ -296,13 +355,36 @@ fork(void)
 //	Return the pid of the child to the parent (or 0 to a newly created child thread)
 int clone(int size) {
 	int i, pid;
-	struct proc *np;
+	struct proc *np;			// New process or thread in this case
 	struct proc *curproc = myproc();	// Current process
 
 	// Don't create a new process??
+	// Allocate thread
+	if ((np = allocthread()) == 0) return -1;	
+
+	np->pgdir = curproc->pgdir;	// Set child's page table to parent's page table????
+	np->sz = curproc->sz;
+	np->parent = curproc;
+	*np->tf = *curproc->tf;
+	
+	// Clear %eax so that clone returns 0 in the child
+	np->tf->eax = 0;
+
+	for (i = 0; i < NOFILE; ++i) {
+		if (curproc->ofile[i])
+			np->ofile[i] = filedup(curproc->ofile[1]);
+	}
+	np->cwd = idup(curproc->cwd);
+
+	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+	
+	pid = np->pid;
+	acquire(&ptable.lock);
+	np->state = RUNNABLE;
+	release(&ptable.lock);
 
 
-	return 1;
+	return pid;
 }
 
 
