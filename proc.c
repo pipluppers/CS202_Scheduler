@@ -366,7 +366,7 @@ fork(void)
 //	Run on the child user's stack, NOT the parent's stack
 //
 //	Return the pid of the child to the parent (or 0 to a newly created child thread)
-int clone(int size) {
+int clone(void *stack, int size) {
 	int i, pid;
 	struct proc *np;			// New process or thread in this case
 	struct proc *curproc = myproc();	// Current process

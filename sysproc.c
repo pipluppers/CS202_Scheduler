@@ -150,9 +150,10 @@ sys_clone(void)
 	int pid;
 	if (argint(0, &pid) < 0)
 		return -1;
-
+	
+	int stack;	// Place holder
 	// huh
-	return clone(pid);
+	return clone(&stack,pid);
 
 
 }
