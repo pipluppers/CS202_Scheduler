@@ -291,45 +291,60 @@ fork(void)
 
 //	cprintf("Calling proc::fork\n");
 
+
+
+//	Allocation of address space is somewhere here???
+//	------------------------------------------------------
+
   	// Allocate process.
   	if((np = allocproc()) == 0){
     		return -1;
   	}
 
-  // Copy process state from proc.
-  // Create a copy of the parent's page table for the child
-  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
-    kfree(np->kstack);
-    np->kstack = 0;
-    np->state = UNUSED;
-    return -1;
-  }
-  np->sz = curproc->sz;
-  np->parent = curproc;
-  *np->tf = *curproc->tf;
+  	// Copy process state from proc.
+  	// Create a copy of the parent's page table for the child
+  	if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+    		kfree(np->kstack);
+    		np->kstack = 0;
+    		np->state = UNUSED;
+    		return -1;
+  	}	
 
-  // Clear %eax so that fork returns 0 in the child.
-  np->tf->eax = 0;
+//	-----------------------------------------------------
+
+
+
+	// Copy the parent's size of process memory
+	//	and trapframe for current syscall
+  	np->sz = curproc->sz;
+  	np->parent = curproc;
+  	*np->tf = *curproc->tf;
+
+  	// Clear %eax so that fork returns 0 in the child.
+	//	%eax is a general purpose register of type unsigned int
+	np->tf->eax = 0;
 
 	// NOFILE is 16
+	// If the file is open, filedup increments the reference count of that file
+	// 	i.e. let the system know that another process is using said file
   	for(i = 0; i < NOFILE; i++) {
     		if(curproc->ofile[i]) {
-			// filedup increments the reference count of curproc->ofile[i]
       			np->ofile[i] = filedup(curproc->ofile[i]);
 		}
 	}
-  	np->cwd = idup(curproc->cwd);
+  	// Increments the reference counter of the current working directory
+	np->cwd = idup(curproc->cwd);
 
 	// Just like strncpy but guaranteed to null-terminate
   	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
-  pid = np->pid;
+	// Technically don't need this line. Could just return np->pid
+  	pid = np->pid;
 
-  acquire(&ptable.lock);
-
-  np->state = RUNNABLE;
-
-  release(&ptable.lock);
+	// Make the child process runnable
+  	acquire(&ptable.lock);
+  	np->state = RUNNABLE;
+  	release(&ptable.lock);
 
   return pid;
 }
@@ -346,12 +361,20 @@ int clone(int size) {
 	struct proc *np;			// New process or thread in this case
 	struct proc *curproc = myproc();	// Current process
 
+
+//	--------------------------------------------------------
+
 	// Don't create a new process??
 	// Allocate thread
 	//if ((np = allocthread()) == 0) return -1;	
 	if ((np = allocproc()) == 0) return -1;
 
 	np->pgdir = curproc->pgdir;	// Set child's page table to parent's page table????
+
+
+//	-------------------------------------------------------
+
+
 	np->sz = curproc->sz;
 	np->parent = curproc;
 	*np->tf = *curproc->tf;
