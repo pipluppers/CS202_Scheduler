@@ -198,11 +198,7 @@ found:
 	//	Initializing numSysCalls to 0
 	p->numSysCalls = 0;
 	p->numMemPg = 1;
-
 	++numProcesses;
-
-	//	Lab1
-	//	--------------------------------------------------------------------------------------
 
 	acquire(&ptable.lock);
 	p->tickets = 2;
@@ -336,6 +332,7 @@ fork(void)
 
 	// NOFILE is 16
 	// If the file is open, filedup increments the reference count of that file
+	// 	and returns that same file
 	// 	i.e. let the system know that another process is using said file
   	for(i = 0; i < NOFILE; i++) {
     		if(curproc->ofile[i]) {
@@ -361,6 +358,9 @@ fork(void)
 
 
 //int clone(int size, void *stack) {
+//	kstack is a char*. Maybe make stack a char pointer?????
+//
+//
 //	Use the parent's address space
 //	Don't duplicate the file descriptors of the parents. Should use the same file descriptor
 //	Run on the child user's stack, NOT the parent's stack
@@ -392,12 +392,18 @@ int clone(int size) {
 	// Clear %eax so that clone returns 0 in the child
 	np->tf->eax = 0;
 
+
+
+	// Ensure that the file descriptor is not a duplicate but is using the same one
+	// TODO Wat the fack
 	for (i = 0; i < NOFILE; ++i) {
 		if (curproc->ofile[i])
-			np->ofile[i] = filedup(curproc->ofile[1]);
+			np->ofile[i] = filedup(curproc->ofile[i]);
 	}
 	np->cwd = idup(curproc->cwd);
 
+
+	// np->name = curproc->name
 	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 	
 	pid = np->pid;
