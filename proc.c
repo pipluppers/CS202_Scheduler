@@ -397,10 +397,16 @@ exit(void)
 
 	//	Lab 2
 	//	Only close all file descriptors when the last thread exits
+
+	// New part -------------------------------------
+
 	--curproc->parent->numThreads;
 	if (curproc->parent->numThreads > 0) {
 		return;
 	}
+
+	// ----------------------------------------------
+
   	// Close all open files.
   	for(fd = 0; fd < NOFILE; fd++){
     		if(curproc->ofile[fd]){
