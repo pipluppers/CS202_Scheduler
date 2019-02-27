@@ -8,10 +8,7 @@
 #include "spinlock.h"
 
 int numProcesses = 0;
-int totalTickets = 0;
-int ticketList[200];
-//	List full of tickets, not processes
-struct ticket tickets[200];
+int numThreads = 0;
 
 struct {
   struct spinlock lock;
@@ -78,7 +75,7 @@ myproc(void) {
 }
 
 
-
+/*
 static struct proc*
 allocthread(void)
 {
@@ -134,7 +131,7 @@ allocthread(void)
 
 		return p;
 }
-		
+*/		
 
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
@@ -196,19 +193,17 @@ found:
 
 	//	Lab1
 	//	--------------------------------------------------------------------------------------
-	//	Attempt at the tickets struct 2/18/19
 
 	acquire(&ptable.lock);
 	p->tickets = 2;
 	p->original_stride = 10000/(p->tickets);
 	p->stride = p->original_stride;
 	p->numRan = 0;
+	p->numThreads = 1;
 	release(&ptable.lock);
 
-
-
 //	cprintf("Leaving proc::allocproc()\n");
-
+	
   return p;
 }
 
@@ -249,21 +244,8 @@ userinit(void)
 
   p->state = RUNNABLE;
 
-
-	//	Lab 1
-	//	Process already created in allocproc()
-/*
-	p->numSysCalls = 0;
-	p->numMemPg = 1;
-	
-	++numProcesses;
-	
-	
-*/
 //	cprintf("About to release the lock\n");
-  	
 	release(&ptable.lock);
-
 //	cprintf("Leaving userinit\n");
 }
 
@@ -309,12 +291,13 @@ fork(void)
 
 //	cprintf("Calling proc::fork\n");
 
-  // Allocate process.
-  if((np = allocproc()) == 0){
-    return -1;
-  }
+  	// Allocate process.
+  	if((np = allocproc()) == 0){
+    		return -1;
+  	}
 
   // Copy process state from proc.
+  // Create a copy of the parent's page table for the child
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
@@ -328,12 +311,17 @@ fork(void)
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
-  for(i = 0; i < NOFILE; i++)
-    if(curproc->ofile[i])
-      np->ofile[i] = filedup(curproc->ofile[i]);
-  np->cwd = idup(curproc->cwd);
+	// NOFILE is 16
+  	for(i = 0; i < NOFILE; i++) {
+    		if(curproc->ofile[i]) {
+			// filedup increments the reference count of curproc->ofile[i]
+      			np->ofile[i] = filedup(curproc->ofile[i]);
+		}
+	}
+  	np->cwd = idup(curproc->cwd);
 
-  safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+	// Just like strncpy but guaranteed to null-terminate
+  	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
   pid = np->pid;
 
@@ -360,7 +348,8 @@ int clone(int size) {
 
 	// Don't create a new process??
 	// Allocate thread
-	if ((np = allocthread()) == 0) return -1;	
+	//if ((np = allocthread()) == 0) return -1;	
+	if ((np = allocproc()) == 0) return -1;
 
 	np->pgdir = curproc->pgdir;	// Set child's page table to parent's page table????
 	np->sz = curproc->sz;
@@ -379,10 +368,10 @@ int clone(int size) {
 	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 	
 	pid = np->pid;
+	
 	acquire(&ptable.lock);
 	np->state = RUNNABLE;
 	release(&ptable.lock);
-
 
 	return pid;
 }
@@ -405,13 +394,23 @@ exit(void)
   if(curproc == initproc)
     panic("init exiting");
 
-  // Close all open files.
-  for(fd = 0; fd < NOFILE; fd++){
-    if(curproc->ofile[fd]){
-      fileclose(curproc->ofile[fd]);
-      curproc->ofile[fd] = 0;
-    }
-  }
+
+	//	Lab 2
+	//	Only close all file descriptors when the last thread exits
+	--curproc->parent->numThreads;
+	if (curproc->parent->numThreads > 0) {
+		return;
+	}
+  	// Close all open files.
+  	for(fd = 0; fd < NOFILE; fd++){
+    		if(curproc->ofile[fd]){
+      			fileclose(curproc->ofile[fd]);
+      			curproc->ofile[fd] = 0;
+    		}
+  	}
+
+
+
 
   begin_op();
   iput(curproc->cwd);

@@ -79,6 +79,9 @@ struct proc {
 	int original_stride;
 	int stride;
 	int numRan;
+
+	// Lab 2
+	int numThreads;			// Keeps track of the number of child threads this process has
 };
 
 // Process memory is laid out contiguously, low addresses first:
