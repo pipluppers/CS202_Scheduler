@@ -135,7 +135,7 @@ allocthread(void)
 
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
-// If found, change state to EMBRYOProject 2: xv6 Threads
+// If found, change state to EMBRYO
 // and initialize
 // state required to run in the kernel.
 // Otherwise return 0.
@@ -162,12 +162,22 @@ found:
 
   release(&ptable.lock);
 
-  // Allocate kernel stack.
-  if((p->kstack = kalloc()) == 0){
-    p->state = UNUSED;
-    return 0;
-  }
-  sp = p->kstack + KSTACKSIZE;
+
+
+	// Allocate kernel stack.
+	// kalloc defined in kalloc.c
+	// 	It allocated one 4096-byte page of phys memory
+	// 	and returns a pointer that the kernel can use
+	// 	If it failed, return 0
+  	if((p->kstack = kalloc()) == 0){
+    		p->state = UNUSED;
+	    	return 0;
+  	}
+	// KSTACKSIZE is the size of a per-process kernel stack (4096)
+	// kstack is the bottom of the kernel stack for that process
+  	sp = p->kstack + KSTACKSIZE;
+
+
 
   // Leave room for trap frame.
   sp -= sizeof *p->tf;
