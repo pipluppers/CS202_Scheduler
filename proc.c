@@ -205,7 +205,7 @@ found:
 	p->original_stride = 10000/(p->tickets);
 	p->stride = p->original_stride;
 	p->numRan = 0;
-	p->numThreads = 1;
+	//p->numThreads = 1;
 	release(&ptable.lock);
 
 //	cprintf("Leaving proc::allocproc()\n");
@@ -357,7 +357,6 @@ fork(void)
 }
 
 
-//int clone(int size, void *stack) {
 //	kstack is a char*. Maybe make stack a char pointer?????
 //
 //
@@ -380,12 +379,13 @@ int clone(void *stack, int size) {
 	if ((np = allocproc()) == 0) return -1;
 
 	np->pgdir = curproc->pgdir;	// Set child's page table to parent's page table????
-
+	
 
 //	-------------------------------------------------------
 
-
-	np->sz = curproc->sz;
+	np->sz = size;
+	np->kstack = stack;
+	//np->sz = curproc->sz;
 	np->parent = curproc;
 	*np->tf = *curproc->tf;
 	
@@ -439,10 +439,10 @@ exit(void)
 
 	// New part -------------------------------------
 
-	--curproc->parent->numThreads;
-	if (curproc->parent->numThreads > 0) {
-		return;
-	}
+	//--curproc->parent->numThreads;
+	//if (curproc->parent->numThreads > 0) {
+	//	return;
+	//}
 
 	// ----------------------------------------------
 
