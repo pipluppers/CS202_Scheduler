@@ -64,9 +64,6 @@ struct proc {
   	enum procstate state;        	// Process state
   	int pid;                     	// Process ID
   	struct proc *parent;         	// Parent process
-
-	struct proc *child;		// List of children
-
   	struct trapframe *tf;        	// Trap frame for current syscall
   	struct context *context;     	// swtch() here to run process
   	void *chan;                  	// If non-zero, sleeping on chan
@@ -88,6 +85,7 @@ struct proc {
 	//	Keeps track of the total number of threads that share the addr space as this one
 	//	Should be initialized to 1
 	//	Every one should be increased by 1 with each call to clone...HMMMM?????
+	struct proc * child;	// List of children
 	int numFriends;
 };
 
