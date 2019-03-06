@@ -395,10 +395,13 @@ int clone(void *stack, int size) {
 
 
 	// Ensure that the file descriptor is not a duplicate but is using the same one
+	// filedup(file pointer) returns a file pointer
 	// TODO Wat the fack
 	for (i = 0; i < NOFILE; ++i) {
-		if (curproc->ofile[i])
+		if (curproc->ofile[i]) {
 			np->ofile[i] = filedup(curproc->ofile[i]);
+		//	(np->ofile + i) = &filedup(curproc->ofile[i]);
+		}
 	}
 	np->cwd = idup(curproc->cwd);
 
