@@ -207,7 +207,7 @@ found:
 	p->numRan = 0;
 	//p->numThreads = 1;
 
-//	This breaks the shell for some weird reason
+	p->numFriends = (int*) kalloc();
 	*(p->numFriends) = 1;
 
 
@@ -517,8 +517,8 @@ wait(void)
       		havekids = 1;
 
 		// Added the second check
-	//	if (p->state == ZOMBIE) {
-		if(p->state == ZOMBIE  && *(p->numFriends) == 1){
+		if (p->state == ZOMBIE) {
+//		if(p->state == ZOMBIE  && *(p->numFriends) == 1){
         		// Found one.
         		pid = p->pid;
         		kfree(p->kstack);
