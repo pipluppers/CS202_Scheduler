@@ -86,7 +86,7 @@ struct proc {
 	//	Should be initialized to 1
 	//	Every one should be increased by 1 with each call to clone...HMMMM?????
 	struct proc * child;	// List of children
-	int numFriends;
+	int *numFriends;	// Make this a pointer and point each thread's numFriends to a single numFriends of parent
 };
 
 // Process memory is laid out contiguously, low addresses first:

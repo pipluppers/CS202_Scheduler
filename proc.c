@@ -206,6 +206,11 @@ found:
 	p->stride = p->original_stride;
 	p->numRan = 0;
 	//p->numThreads = 1;
+
+//	This breaks the shell for some weird reason
+	*(p->numFriends) = 1;
+
+
 	release(&ptable.lock);
 
 //	cprintf("Leaving proc::allocproc()\n");
@@ -405,6 +410,10 @@ int clone(void *stack, int size) {
 	}
 	np->cwd = idup(curproc->cwd);
 
+	// All numFriends refer to the same one
+	// If it equals 1, this is the last thread on that addr space
+//	np->numFriends = curproc->numFriends;
+//	*(np->numFriends) = *(np->numFriends) + 1;
 
 	// np->name = curproc->name
 	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
@@ -501,35 +510,38 @@ wait(void)
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
-    havekids = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != curproc)
-        continue;
-      havekids = 1;
-      if(p->state == ZOMBIE){
-        // Found one.
-        pid = p->pid;
-        kfree(p->kstack);
-        p->kstack = 0;
-        freevm(p->pgdir);
-        p->pid = 0;
-        p->parent = 0;
-        p->name[0] = 0;
-        p->killed = 0;
-        p->state = UNUSED;
-        release(&ptable.lock);
-        return pid;
-      }
-    }
+    	havekids = 0;
+    	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      		if(p->parent != curproc)
+        		continue;
+      		havekids = 1;
+
+		// Added the second check
+	//	if (p->state == ZOMBIE) {
+		if(p->state == ZOMBIE  && *(p->numFriends) == 1){
+        		// Found one.
+        		pid = p->pid;
+        		kfree(p->kstack);
+        		p->kstack = 0;
+        		freevm(p->pgdir);
+        		p->pid = 0;
+		        p->parent = 0;
+        		p->name[0] = 0;
+        		p->killed = 0;
+        		p->state = UNUSED;
+        		release(&ptable.lock);
+        		return pid;
+      		}
+    	}
     // No point waiting if we don't have any children.
 
-    if(!havekids || curproc->killed){
-      release(&ptable.lock);
-      return -1;
-    }
+    	if(!havekids || curproc->killed){
+      		release(&ptable.lock);
+      		return -1;
+    	}
 
-    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
-    sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+    	// Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    	sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
 }
 
