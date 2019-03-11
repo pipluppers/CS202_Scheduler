@@ -412,8 +412,8 @@ int clone(void *stack, int size) {
 
 	// All numFriends refer to the same one
 	// If it equals 1, this is the last thread on that addr space
-//	np->numFriends = curproc->numFriends;
-//	*(np->numFriends) = *(np->numFriends) + 1;
+	np->numFriends = curproc->numFriends;
+	*(np->numFriends) = *(np->numFriends) + 1;
 
 	// np->name = curproc->name
 	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
@@ -451,20 +451,23 @@ exit(void)
 
 	// New part -------------------------------------
 
-	//--curproc->parent->numThreads;
-	//if (curproc->parent->numThreads > 0) {
+	//--*(curproc->numFriends);
+	//if (*(curproc->numFriends) > 0) {
 	//	return;
 	//}
 
 	// ----------------------------------------------
 
-  	// Close all open files.
-  	for(fd = 0; fd < NOFILE; fd++){
-    		if(curproc->ofile[fd]){
-      			fileclose(curproc->ofile[fd]);
-      			curproc->ofile[fd] = 0;
-    		}
-  	}
+  	// Close all open files if this is the last thread on the addr space
+  	--*(curproc->numFriends);				// NEW
+  	if (*(curproc->numFriends) == 0) {			// NEW
+  		for(fd = 0; fd < NOFILE; fd++){
+    			if(curproc->ofile[fd]){
+      				fileclose(curproc->ofile[fd]);
+      				curproc->ofile[fd] = 0;
+    			}
+  		}
+	}							// NEW
 
 
 
@@ -517,8 +520,8 @@ wait(void)
       		havekids = 1;
 
 		// Added the second check
-		if (p->state == ZOMBIE) {
-//		if(p->state == ZOMBIE  && *(p->numFriends) == 1){
+//		if (p->state == ZOMBIE) {
+		if (p->state == ZOMBIE  && *(p->numFriends) == 1){	// NEW.. TODO: CAUSING PROBLEMS
         		// Found one.
         		pid = p->pid;
         		kfree(p->kstack);
