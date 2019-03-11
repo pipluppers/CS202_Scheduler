@@ -11,11 +11,20 @@ void lock_init(struct lock_t *lock) {
 
 void lock_acquire(struct lock_t *lock) {
 
+	// Disable interrupts to avoid deadlock
 	pushcli();
-	if (*lock == 1) panic("acquire");	
+
+	//Not considering CPU. This might be unnecessary
+	//if (*lock == 1) panic("acquire");	
+	
+	// xchg provides atomic lock acquiring
+	//
+	while (xchg(&lock->locked, 1) != 0);
 
 }
 
 void lock_release(struct lock_t *lock) {
 
+	// Want to set lock->locked to 0 atomically
+	xchg(&lock->locked, 0);
 }

@@ -521,7 +521,7 @@ wait(void)
 
 		// Added the second check
 //		if (p->state == ZOMBIE) {
-		if (p->state == ZOMBIE  && *(p->numFriends) == 1){	// NEW.. TODO: CAUSING PROBLEMS
+		if (p->state == ZOMBIE  && *(p->numFriends) == 1){	// NEW.. TODO: CAUSING SHELL TO GET STUCK
         		// Found one.
         		pid = p->pid;
         		kfree(p->kstack);
