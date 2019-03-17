@@ -17,33 +17,36 @@ void test_routine(void* arg) {
 	return;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
-	printf(1,"Enter number of Players: ");
-	// Get input from user numThreads
-	int numThreads = 4;
-	printf(1,"\nEnter number of Passes: ");
-	// Get input from user numPasses
-	int numPasses = 6;
-	printf(1, "\n");
+	if (argc != 3) {
+		printf(1, "Need 3 arguments: executable, numPlayers, numPasses\n");
+		exit();
+	}
+	int numThreads = atoi(argv[1]);
+	int numPasses = atoi(argv[2]);
+	printf(1, "numPlayers = %d, numPasses = %d\n",numThreads,numPasses);
 
 	int i = 0;
 	int tid = -1;
 	for (; i < numThreads; ++i) {
 		// Undefined reference to thread_create
 		// Not sure why yet
-		/*
-		tid = thread_create(test_routine, (void*)&numPasses );
-		if (tid == -1) {
+		//tid = thread_create(test_routine, (void*)&numPasses );
+		/*if (tid == -1) {
 			printf(1,"An error occurred in creating the thread");
 			return 1;
 		}
 		*/
-
 		printf(1, "tid: %d\n",tid);
 	}
-
 	
+	for (i = 0; i < numPasses; ++i) {
+		printf(1, "Pass number no: %d, Thread %d is passing the token to thread %d\n", i+1, tid, tid);
+	}
 
+
+	printf(1, "Frisbee game done\n");
+	exit();
 	return 0;
 }

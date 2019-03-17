@@ -255,7 +255,6 @@ userinit(void)
 
   p->state = RUNNABLE;
 
-//	cprintf("About to release the lock\n");
 	release(&ptable.lock);
 //	cprintf("Leaving userinit\n");
 }
@@ -389,7 +388,7 @@ int clone(void *stack, int size) {
 //	-------------------------------------------------------
 
 	np->sz = size;
-	np->kstack = stack;
+	np->kstack = stack;		// Point thread's stack to the bottom of the passed in stack pointer
 	//np->sz = curproc->sz;
 	np->parent = curproc;
 	*np->tf = *curproc->tf;
