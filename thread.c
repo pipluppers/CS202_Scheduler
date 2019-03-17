@@ -1,6 +1,8 @@
 #include "types.h"
 #include "defs.h"
 #include "param.h"
+#include "x86.h"
+#include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
 #include "thread.h"
@@ -27,4 +29,20 @@ void lock_release(struct lock_t *lock) {
 
 	// Want to set lock->locked to 0 atomically
 	xchg(&lock->locked, 0);
+}
+
+int thread_create(void *(*start_routine)(void *), void *arg) {
+
+	int tid;	// thread ID
+	void *stack;
+
+	
+
+	if ((tid = clone(stack, PGSIZE)) == 0) {
+		return -1;
+	}	
+	start_routine(arg);
+
+
+	return tid;
 }

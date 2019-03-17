@@ -129,6 +129,13 @@ int		stride_runs(void);
 int		clone(void*, int);
 
 
+// thread.c
+// TODO Is this even necessary?
+//int		thread_create(void, void*);
+
+
+
+
 // swtch.S
 void            swtch(struct context**, struct context*);
 

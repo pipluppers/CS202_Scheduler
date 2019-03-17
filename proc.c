@@ -397,8 +397,6 @@ int clone(void *stack, int size) {
 	// Clear %eax so that clone returns 0 in the child
 	np->tf->eax = 0;
 
-
-
 	// Ensure that the file descriptor is not a duplicate but is using the same one
 	// filedup(file pointer) returns a file pointer
 	// TODO Wat the fack
@@ -520,8 +518,8 @@ wait(void)
       		havekids = 1;
 
 		// Added the second check
-//		if (p->state == ZOMBIE) {
-		if (p->state == ZOMBIE  && *(p->numFriends) == 1){	// NEW.. TODO: CAUSING SHELL TO GET STUCK
+		if (p->state == ZOMBIE) {
+//		if (p->state == ZOMBIE  && *(p->numFriends) == 1){	// NEW.. TODO: CAUSING SHELL TO GET STUCK
         		// Found one.
         		pid = p->pid;
         		kfree(p->kstack);
@@ -672,7 +670,7 @@ stride_scheduler(void)
 	struct cpu *c = mycpu();
 	c->proc = 0;
 	float min_stride;
-	struct proc *min_proc;
+	struct proc *min_proc = myproc();
 
 	cprintf("Calling proc::stride_scheduler\n");
 
