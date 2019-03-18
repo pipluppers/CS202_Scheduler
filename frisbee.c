@@ -1,16 +1,19 @@
-#include "param.h"
-#include "types.h"
-#include "stat.h"
+//#include "param.h"
+//#include "types.h"
+//#include "stat.h"
 
 //#include "defs.h"
 
-#include "user.h"
-#include "fs.h"
-#include "fcntl.h"
+//#include "user.h"
+//#include "fs.h"
+//#include "fcntl.h"
 #include "syscall.h"
-#include "traps.h"
-#include "memlayout.h"
-//#include "thread.h"
+//#include "traps.h"
+//#include "memlayout.h"
+#include "thread.c"
+
+//	Only include thread.c and all the redefinitions go away
+
 
 void test_routine(void* arg) {
 	printf(1,"I have no idea what this function (start_routine) is supposed to do");
@@ -32,7 +35,7 @@ int main(int argc, char *argv[]) {
 	for (; i < numThreads; ++i) {
 		// Undefined reference to thread_create
 		// Not sure why yet
-		//tid = thread_create(test_routine, (void*)&numPasses );
+		tid = thread_create(test_routine, (void*)&numPasses );
 		/*if (tid == -1) {
 			printf(1,"An error occurred in creating the thread");
 			return 1;

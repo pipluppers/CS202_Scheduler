@@ -517,6 +517,8 @@ wait(void)
       		havekids = 1;
 
 		// Added the second check
+		// Parent can exit first. Do we just need to check that the thread is the last one???? so just check if numFriends == 1?
+		// 	Don't worry about comparing p->parent to curproc??
 		if (p->state == ZOMBIE) {
 //		if (p->state == ZOMBIE  && *(p->numFriends) == 1){	// NEW.. TODO: CAUSING SHELL TO GET STUCK
         		// Found one.

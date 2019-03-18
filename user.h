@@ -1,3 +1,6 @@
+#ifndef USER_H
+#define USER_H
+
 struct stat;
 struct rtcdate;
 
@@ -48,3 +51,5 @@ int atoi(const char*);
 
 // thread.c
 int thread_create(void(*)(void *), void *);
+
+#endif

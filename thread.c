@@ -14,27 +14,13 @@ void lock_init(struct lock_t *lock) {
 }
 
 void lock_acquire(struct lock_t *lock) {
-
-	// Disable interrupts to avoid deadlock
-	// Might have to define pushcli first
-	pushcli();
-
-	//Not considering CPU. This might be unnecessary
-	//if (*lock == 1) panic("acquire");	
-	
 	// xchg provides atomic lock acquiring
-	//
 	while (xchg(&lock->locked, 1) != 0);
-
 }
 
 void lock_release(struct lock_t *lock) {
 
-	// Want to set lock->locked to 0 atomically
 	xchg(&lock->locked, 0);
-
-	// Might have to define this function
-	popcli();
 }
 
 //	Array Lock	-------------------------------------------------
@@ -48,6 +34,8 @@ void lock_release(struct lock_t *lock) {
 //		If the counter is an odd number, then a writer has a lock.
 //		Therefore, need to check counter before and after reading shared data. If counter has changed,
 //			then a writer changed the data just now.
+//	Reader checks will happen in that actual function that called it (i.e. test program)
+
 
 void seq_lock_init(struct seq_lock_t *lock) {
 	lock->locked = 0;	// might be unnecessary
@@ -79,9 +67,32 @@ uint seq_lock_read(struct seq_lock_t *lock) {
 
 
 
+//	MCS Lock	---------------------------------------------------------
+
+//	If null, lock is acquired
+struct mcs_node* fetch_and_store(struct mcs_node *q, struct mcs_node *n) {
+	struct mcs_node *q1 = q;
+	// TODO
+
+	return q1;	
+}
+
+//	TODO Wtf is fetch and store
+void mcs_lock_lock(struct mcs_lock *lock, struct mcs_node *n) {
+	n->next = 0;
+	
+	struct mcs_node *prev = fetch_and_store(lock->queue, n);
+	if (prev == 0) return;
+	else {
+		n->has_lock = 1;
+		prev->next = n;
+		while (n->has_lock == 1);
+	}
+}
 
 
-//	Thead_create 	----------------------------------------------------------
+
+//	Thread_create 	----------------------------------------------------------
 
 int thread_create(void *(*start_routine)(void *), void *arg) {
 
