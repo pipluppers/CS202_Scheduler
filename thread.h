@@ -30,7 +30,7 @@ uint seq_lock_read(struct seq_lock_t *t);
 
 
 void mcs_lock_lock(struct mcs_lock *, struct mcs_node *); 
-
+void mcs_lock_unlock(struct mcs_lock *, struct mcs_node *);
 
 
 //int thread_create(void *(*start_routine)(void*), void *arg);

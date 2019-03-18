@@ -90,6 +90,27 @@ void mcs_lock_lock(struct mcs_lock *lock, struct mcs_node *n) {
 	}
 }
 
+//	If the first parameter has the same value as the second parameter, then change it to the third parameter
+uint compare_and_swap(struct mcs_node *q, struct mcs_node *old_node, struct mcs_node *new_node) {
+	if (q->has_lock != old_node->has_lock || q->next != old_node->next) {
+		return 0;
+	}
+	*q = *new_node;
+	return 1;
+}
+
+void mcs_lock_unlock(struct mcs_lock *lock, struct mcs_node *n) {
+	
+	if (n->next == 0) {
+		if (compare_and_swap(lock, n, 0) == 1) return;
+	}
+	else {
+		while(n->next == 0);
+	}
+
+	n->next->has_lock == 0;
+}
+
 
 
 //	Thread_create 	----------------------------------------------------------
