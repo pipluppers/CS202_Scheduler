@@ -24,24 +24,29 @@ void lock_release(struct lock_t *lock) {
 }
 
 //	Array Lock	-------------------------------------------------
-struct lock_array {
-	uint lock_available;
-	struct lock_array *next;
-};
+//	This circle should be constructed in the calling function (e.g. frisbee)
+//	0 means must_wait, 1 means available
+int fetch_and_increment(int* location) {
+	int val = *location;
+	*location = val + 1;
+	return val;
+}
 
-void arr_lock_init(struct arr_lock_t *lock) {
+//	Unloeked. Put on lock array
+void arr_lock_init(struct arr_lock_t *lock, int *flag,int size) {
 	lock->locked = 0;
-	lock->lock_available = 1;
+	lock->my_place = size;
+	*(flag + size) = 0;
 }
 
-void arr_lock_acquire(struct arr_lock_t *lock) {
-
-	while(
-
+void arr_lock_acquire(struct arr_lock_t *lock, int *flag, int size) {
+	lock->my_place = fetch_and_increment(*flag + size - 1);
+	while(*(flag + (lock->my_place % size)) == 0);
 }
 
-void arr_lock_release(struct arr_lock_t *lock) {
-
+void arr_lock_release(struct arr_lock_t *lock, int* flag, int size) {
+	*(flag + (lock->my_place % size)) = 0;
+	*(flag + ((lock->my_place + 1) % size)) = 1;
 }
 
 
