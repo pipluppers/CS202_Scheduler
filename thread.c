@@ -24,8 +24,25 @@ void lock_release(struct lock_t *lock) {
 }
 
 //	Array Lock	-------------------------------------------------
+struct lock_array {
+	uint lock_available;
+	struct lock_array *next;
+};
 
+void arr_lock_init(struct arr_lock_t *lock) {
+	lock->locked = 0;
+	lock->lock_available = 1;
+}
 
+void arr_lock_acquire(struct arr_lock_t *lock) {
+
+	while(
+
+}
+
+void arr_lock_release(struct arr_lock_t *lock) {
+
+}
 
 
 //	Seq Lock	-------------------------------------------------
