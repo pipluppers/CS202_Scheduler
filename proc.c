@@ -689,9 +689,7 @@ stride_scheduler(void)
 			if (p->state != RUNNABLE) continue;
 
 			if (p->stride < min_stride) {
-			
 				min_stride = p->stride;
-
 				min_proc = p;
 			}
 		}
@@ -979,14 +977,7 @@ print_tickets() {
 	return t;
 }
 
-
-
-int
-stride_runs()
-{
-
-	struct proc *p = myproc();
+int stride_runs() {
+	struct proc *p;
 	return p->numRan;
 }
-
-

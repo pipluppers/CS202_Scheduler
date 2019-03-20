@@ -1,3 +1,4 @@
+
 //#include "param.h"
 //#include "types.h"
 //#include "stat.h"
@@ -33,8 +34,6 @@ int main(int argc, char *argv[]) {
 	int i = 0;
 	int tid = -1;
 	for (; i < numThreads; ++i) {
-		// Undefined reference to thread_create
-		// Not sure why yet
 		tid = thread_create(test_routine, (void*)&numPasses );
 		/*if (tid == -1) {
 			printf(1,"An error occurred in creating the thread");
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
 	}
 
 
-	printf(1, "Frisbee game done\n");
+	printf(1,"End of frisbee_spin\n");
 	exit();
 	return 0;
 }

@@ -170,7 +170,10 @@ UPROGS=\
 	_cat\
 	_echo\
 	_forktest\
-	_frisbee\
+	_frisbee_spin\
+	_frisbee_array\
+	_frisbee_seq\
+	_frisbee_mcs\
 	_grep\
 	_init\
 	_kill\
@@ -257,7 +260,7 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # check in that version.
 
 EXTRA=\
-	mkfs.c ulib.c user.h cat.c echo.c frisbee.c forktest.c grep.c kill.c\
+	mkfs.c ulib.c user.h cat.c echo.c frisbee_spin.c frisbee_array.c frisbee_seq.c frisbee_mcs.c forktest.c grep.c kill.c\
 	ln.c ls.c mkdir.c prog1.c prog2.c prog3.c rm.c stressfs.c usertests.c usertests1.c wc.c zombie.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
